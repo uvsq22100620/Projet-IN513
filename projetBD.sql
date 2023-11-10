@@ -54,7 +54,7 @@ CREATE TABLE INGREDIENTS (
     prix_igd float CHECK(prix_igd>0),
     stock number CHECK(stock>=0),
     num_fournisseur number,
-    CONSTRAINT pk_igd PRIMARY KEY (num_igd)
+    CONSTRAINT pk_igd PRIMARY KEY (num_igd),
     CONSTRAINT fk_igd FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur)
 );
 
