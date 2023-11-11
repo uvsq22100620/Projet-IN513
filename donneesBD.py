@@ -1,6 +1,38 @@
 import random
 import time
+from datetime import datetime, timedelta
 
+def dates_par_semaine_debut_mardi_sans_lundi():
+    liste_annee = []
+
+    for annee in range(2021, 2024):
+        debut_annee = datetime(annee, 1, 1)
+        fin_annee = datetime(annee, 12, 31)
+
+        semaine = []
+        date = debut_annee
+
+        # Recherche du mardi
+        while date.strftime("%A") != "Tuesday":
+            date += timedelta(days=1)
+
+        while date <= fin_annee:
+            if date.strftime("%A") != "Monday":  # Exclure le lundi
+                date_tuple = [date.strftime("%A"), date.strftime("%d"), date.strftime("%B"), date.strftime("%Y")]
+                semaine.append(date_tuple)
+
+            if date.strftime("%A") == "Sunday":
+                liste_annee.append(semaine)
+                semaine = []
+                date += timedelta(days=2)  # Passer au mardi de la semaine suivante
+            else:
+                date += timedelta(days=1)
+
+    return liste_annee
+
+liste_annee = dates_par_semaine_debut_mardi_sans_lundi()
+
+#print(liste_annee)
 # Constantes
 
 num_commande = 1
@@ -8,6 +40,10 @@ num_commande = 1
 num_entrees = random.randint(1, 11)
 num_plats = random.randint(12, 28)
 num_desserts = random.randint(29, 45)
+
+dico_semaine = {'Tuesday':'Mar', 'Wednesday':'Mer', 'Thursday':'Jeu', 'Friday': 'Ven', 'Saturday':'Sam', 'Sunday':'Dim'}
+dico_mois = {'January':'Janvier', 'February':'Fevrier', 'March':'Mars', 'April':'Avril', 'May':'Mai', 'June':'Juin', 'July':'Juillet',
+             'August':'Aout', 'September':'Septembre', 'October':'Octobre', 'November':'Novembre', 'December':'Decembre'}
 
 liste_noms_clients = ['NULL', 'Auclair', 'Barth', 'Berdrate', 'Bouleau', 'Bourra', 'Brezellec', 'Camion', 'Chairet', 'Chalant', 'Chevalier', 'Corsi', 'Coucheney', 'Cremazy', 'Debat', 'Diab', 'Durand',
                           'Etchebest', 'Fages', 'Farny', 'Ferrat', 'Finance', 'Fourneau', 'Gattoliat', 'Garnier', 'Gaumer', 'Gianfrotta', 'Hoareau', 'Jacquin', 'Jellouli', 'Juliza', 'Keddis', 'Lamy', 'Lebbah',
@@ -40,9 +76,19 @@ def serveurs_travaillant_sachant_service(jour, annee):
 
 #print(serveurs_travaillant_sachant_service('Mar', 2023))
 
-def commandes_semaine():
+def transfo_date_python_to_sql(sem):
+    for j in sem:
+        j_in_english = j[0]
+        j[0] = dico_semaine[j_in_english]
+        m_in_english = j[2]
+        j[2] = dico_mois[m_in_english]
+    return sem
+
+def commandes_semaine(l_semaine):
 
     global num_commande
+
+    l_semaine = transfo_date_python_to_sql(l_semaine)
 
     # Nombre de clients par service
     nb_mar_m = random.randint(63, 83)
@@ -66,25 +112,34 @@ def commandes_semaine():
     proba_clients = [0.8]+[(0.2/len(liste_noms_clients)) for k in range(len(liste_noms_clients)-1)]
 
     for num_service in range(len(liste_services)):      # pour chaque service
+        jour = l_semaine[num_service//2][0]
+        num_jour = l_semaine[num_service//2][1]
+        mois = l_semaine[num_service//2][2]
+        annee = l_semaine[num_service//2][3]
+        date_commande = "'" + jour + "-" + num_jour + "-" + mois + "-" + annee + "'"
+        serveurs_travaillant = serveurs_travaillant_sachant_service(jour, annee)
         for num_client in range(liste_services[num_service]):       # pour chaque commande
             nom_client = random.choices(liste_noms_clients, proba_clients)[0]
             if nom_client != 'NULL':
-                nom_client = "'" + nom_client + "'"
-            jour = 0
-            mois = 0
-            annee = 0
-            date_commande = 'date'
+                nom_client = "'" + nom_client + "'"        
             service = "'" + l_services[num_service%2] + "'"
-            num_serveur = random.choices(serveurs_travaillant_sachant_service(jour, annee))[0]
+            num_serveur = random.choices(serveurs_travaillant)[0]
             num_table = 0
             tuple_commande = "(" + str(num_commande) + ", " + nom_client + ", " + str(date_commande) + ", " + service + ", " + str(num_serveur) + ", " + str(num_table) + ")"
             fic_commandes.write(tuple_commande+'\n')
             num_commande += 1
     fic_commandes.close()
 
-commandes_semaine()
+commandes_semaine(liste_annee[-1])
 
 
+
+#print(transfo_date_python_to_sql(liste_annee[-1]))
+
+def commandes_toutHAHAHA():
+    for sem in liste_annee:
+        semaine = transfo_date_python_to_sql(sem)
+        commandes_semaine(semaine)
 
 # pour les boissons, mettre souvent de l'eau
 
