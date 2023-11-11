@@ -2,6 +2,28 @@ import random
 import time
 from datetime import datetime, timedelta
 
+# Constantes
+
+num_commande = 1
+
+num_entrees = random.randint(1, 11)
+num_plats = random.randint(12, 28)
+num_desserts = random.randint(29, 45)
+
+dico_semaine = {'Tuesday':'Mar', 'Wednesday':'Mer', 'Thursday':'Jeu', 'Friday': 'Ven', 'Saturday':'Sam', 'Sunday':'Dim'}
+dico_mois = {'January':'Janvier', 'February':'Fevrier', 'March':'Mars', 'April':'Avril', 'May':'Mai', 'June':'Juin', 'July':'Juillet',
+             'August':'Aout', 'September':'Septembre', 'October':'Octobre', 'November':'Novembre', 'December':'Decembre'}
+
+liste_noms_clients = ['NULL', 'Auclair', 'Barth', 'Berdrate', 'Bouleau', 'Bourra', 'Brezellec', 'Camion', 'Chairet', 'Chalant', 'Chevalier', 'Corsi', 'Coucheney', 'Cremazy', 'Debat', 'Diab', 'Durand',
+                          'Etchebest', 'Fages', 'Farny', 'Ferrat', 'Finance', 'Fourneau', 'Gattoliat', 'Garnier', 'Gaumer', 'Gianfrotta', 'Hoareau', 'Jacquin', 'Jellouli', 'Juliza', 'Keddis', 'Lamy', 'Lebbah',
+                          'Le Corre', 'Lefevre', 'Lemaire', 'Lignac', 'Manour', 'Marque', 'Mayer', 'Mediouni', 'Mercorelli', 'Moindjie', 'Moreno', 'Mothor', 'Netter', 'Ninoux',
+                          'Prehaud', 'Pret', 'Prieu', 'Quessette', 'Rincheval', 'Rotella', 'Sandu', 'Sapriel', 'Sitterlin', 'Sourdeval', 'Strozecki', 'Szuplewzki', 'Taher',
+                          'Terki', 'Thibuta', 'Timsiline', 'Tseveendorj', 'Vial', 'Vincens']
+
+liste_num_serveurs = [k for k in range(0,11)]
+
+# tuples de la table COMMANDES
+
 def dates_par_semaine_debut_mardi_sans_lundi():
     liste_annee = []
 
@@ -31,27 +53,7 @@ def dates_par_semaine_debut_mardi_sans_lundi():
     return liste_annee
 
 liste_annee = dates_par_semaine_debut_mardi_sans_lundi()
-
-#print(liste_annee)
-# Constantes
-
-num_commande = 1
-
-num_entrees = random.randint(1, 11)
-num_plats = random.randint(12, 28)
-num_desserts = random.randint(29, 45)
-
-dico_semaine = {'Tuesday':'Mar', 'Wednesday':'Mer', 'Thursday':'Jeu', 'Friday': 'Ven', 'Saturday':'Sam', 'Sunday':'Dim'}
-dico_mois = {'January':'Janvier', 'February':'Fevrier', 'March':'Mars', 'April':'Avril', 'May':'Mai', 'June':'Juin', 'July':'Juillet',
-             'August':'Aout', 'September':'Septembre', 'October':'Octobre', 'November':'Novembre', 'December':'Decembre'}
-
-liste_noms_clients = ['NULL', 'Auclair', 'Barth', 'Berdrate', 'Bouleau', 'Bourra', 'Brezellec', 'Camion', 'Chairet', 'Chalant', 'Chevalier', 'Corsi', 'Coucheney', 'Cremazy', 'Debat', 'Diab', 'Durand',
-                          'Etchebest', 'Fages', 'Farny', 'Ferrat', 'Finance', 'Fourneau', 'Gattoliat', 'Garnier', 'Gaumer', 'Gianfrotta', 'Hoareau', 'Jacquin', 'Jellouli', 'Juliza', 'Keddis', 'Lamy', 'Lebbah',
-                          'Le Corre', 'Lefevre', 'Lemaire', 'Lignac', 'Manour', 'Marque', 'Mayer', 'Mediouni', 'Mercorelli', 'Moindjie', 'Moreno', 'Mothor', 'Netter', 'Ninoux',
-                          'Prehaud', 'Pret', 'Prieu', 'Quessette', 'Rincheval', 'Rotella', 'Sandu', 'Sapriel', 'Sitterlin', 'Sourdeval', 'Strozecki', 'Szuplewzki', 'Taher',
-                          'Terki', 'Thibuta', 'Timsiline', 'Tseveendorj', 'Vial', 'Vincens']
-
-liste_num_serveurs = [k for k in range(0,11)]
+print(liste_annee)
 
 def serveurs_travaillant_sachant_service(jour, annee):
     """ Retourne la liste des serveurs travaillant le jour et l'annnée correspondante"""
@@ -74,8 +76,6 @@ def serveurs_travaillant_sachant_service(jour, annee):
 
     return serveurs
 
-#print(serveurs_travaillant_sachant_service('Mar', 2023))
-
 def transfo_date_python_to_sql(sem):
     for j in sem:
         j_in_english = j[0]
@@ -84,11 +84,9 @@ def transfo_date_python_to_sql(sem):
         j[2] = dico_mois[m_in_english]
     return sem
 
-def commandes_semaine(l_semaine):
+def commandes_semaine(l_semaine, fic_commandes):
 
     global num_commande
-
-    l_semaine = transfo_date_python_to_sql(l_semaine)
 
     # Nombre de clients par service
     nb_mar_m = random.randint(63, 83)
@@ -106,10 +104,11 @@ def commandes_semaine(l_semaine):
     liste_services = [nb_mar_m, nb_mar_s, nb_mer_m, nb_mer_s, nb_jeu_m, nb_jeu_s,
                     nb_ven_m, nb_ven_s, nb_sam_m, nb_sam_s, nb_dim_m]
     l_services = ['M', 'S']
-     
-    liste_services2 = [2, 3, 5]
-    fic_commandes = open('commandes.txt', 'w')
+
     proba_clients = [0.8]+[(0.2/len(liste_noms_clients)) for k in range(len(liste_noms_clients)-1)]
+    proba_tables = [(2/56), (2/56), (2/56), (10/56), (4/56), (2/56), (2/56), (6/56), (2/56), (2/56),
+                    (2/56), (6/56), (2/56), (4/56), (8/56)]
+
 
     for num_service in range(len(liste_services)):      # pour chaque service
         jour = l_semaine[num_service//2][0]
@@ -124,43 +123,17 @@ def commandes_semaine(l_semaine):
                 nom_client = "'" + nom_client + "'"        
             service = "'" + l_services[num_service%2] + "'"
             num_serveur = random.choices(serveurs_travaillant)[0]
-            num_table = 0
+            num_table = random.choices([k for k in range(1,16)], proba_tables)[0]
             tuple_commande = "(" + str(num_commande) + ", " + nom_client + ", " + str(date_commande) + ", " + service + ", " + str(num_serveur) + ", " + str(num_table) + ")"
             fic_commandes.write(tuple_commande+'\n')
             num_commande += 1
-    fic_commandes.close()
 
-commandes_semaine(liste_annee[-1])
-
-
-
-#print(transfo_date_python_to_sql(liste_annee[-1]))
-
-def commandes_toutHAHAHA():
+def commandes():
+    fic_commandes = open('commandes.txt', 'w')
     for sem in liste_annee:
         semaine = transfo_date_python_to_sql(sem)
-        commandes_semaine(semaine)
+        commandes_semaine(semaine, fic_commandes)
+    fic_commandes.close()
 
 # pour les boissons, mettre souvent de l'eau
-
-def tuples_COMMANDES(liste_services):
-
-    ind_cl = 1
-    l_jours = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
-    l_services = ['M', 'S']
-
-    for num_service in range(len(liste_services)):
-        for client in range(liste_services[num_service]):
-            num_commande = str(ind_cl)
-            num_client = '9' + str(num_commande)
-            # format date : %a-%e-%b
-            date = "'" + l_jours[num_service//2] + '-' + str(23+(num_service//2)) + '-' + 'Oct' + "'"
-            service = "'" + l_services[num_service%2] + "'"
-            num_serveur = 0
-            num_table = 0
-            print("(" + num_commande + ", " + num_client + ", " + date + ", " + service + ", " + str(num_serveur)
-                  + ", " + str(num_table) + ")")
-            ind_cl += 1
-
-
 # chaque commande a au moins une boisson associée ou un EPD
