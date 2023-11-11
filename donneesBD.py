@@ -15,6 +15,32 @@ liste_noms_clients = ['NULL', 'Auclair', 'Barth', 'Berdrate', 'Bouleau', 'Bourra
                           'Prehaud', 'Pret', 'Prieu', 'Quessette', 'Rincheval', 'Rotella', 'Sandu', 'Sapriel', 'Sitterlin', 'Sourdeval', 'Strozecki', 'Szuplewzki', 'Taher',
                           'Terki', 'Thibuta', 'Timsiline', 'Tseveendorj', 'Vial', 'Vincens']
 
+liste_noms_clients_V2 = ['NULL', 'Aabirate', 'Abalil', 'Adele-amelie', 'Ahmed Iacob Essallami', 'Ait sahlia', 'Allouche', 'Alvet', 'Amallah', 
+                         'Amoussou', 'Amoyal', 'Aouaouche', 'Asmaoui', 'Astier', 'Auclair', 'Baghdasaryan', 'Ballgobin', 'Barbosa', 
+                         'Barcelo', 'Barth', 'Bchibchi', 'Bel-hadj', 'Belaidi', 'Belmehdi', 'Benaoudia', 'Benkherouf', 'Benyelles', 
+                         'Berdrate', 'Berrahmane', 'Bettaieb', 'Bombart', 'Bouarfa', 'Bouchenna', 'Boukebouche', 'Bouleau', 'Bourra', 
+                         'Bouziane', 'Bouzidi', 'Brezellec', 'Bulver', 'Camion', 'Chairet', 'Chakroun', 'Chalabi', 'Chalant', 'Chany', 
+                         'Chaouch', 'Cheaib', 'Cheboub', 'Chekoua (bouers)', 'Cherif', 'Cherif', 'Chevalier', 'Chollet', 'Chouaib', 
+                         'Cisse', 'Clarisse', 'Corsi', 'Coucheney', 'Coustillas', 'Cremazy', 'Debat', 'Diab', 'Diter', 'Djebrouni', 
+                         'Dolet', 'Doyurur', 'Duhamel', 'Dupuy', 'Durand', 'El Assir', 'El Moussafer', 'El abid', 'Ellili', 'Emerdjian', 
+                         'Estanboulieh', 'Etchebest', 'Fages', 'Farny', 'Feraud', 'Ferrat', 'Finance', 'Fonseca', 'Fourichon', 'Fourneau', 
+                         'Fzeri', 'Garnier', 'Gattoliat', 'Gaumer', 'Germette', 'Ghisolfo', 'Gianfrotta', 'Godet', 'Goudout', 'Grinda', 
+                         'Guerveno', 'Hachour', 'Haidi', 'Haifi', 'Hamad', 'Hamdi', 'Hammadi', 'Harbane', 'Hargas', 'Harnoufi', 'Hatem', 
+                         'Henaff', 'Hervy', 'Hoareau', 'Hoff', 'Iken', 'Iliassy', 'Jacquin', 'Jellouli', 'Jeyakanthan', 'Joannet', 'Joly', 
+                         'Juliza', 'Kanga', 'Keddis', 'Keita', 'Khalin', 'Khelil', 'Ladjouze', 'Lallement', 'Lam', 'Lamy', 'Laporte', 
+                         'Lassouani', 'Lauriola', 'Lavigne', 'Le', 'Le Blanc', 'Le Corre', 'Le Goueff', 'Lebbah', 'Lebouc-royer', 'Ledeme', 
+                         'Lefevre', 'Lemaire', 'Li Combeau', 'Lignac', 'Ludiongo', 'Lukacs', 'Mache', 'Manour', 'Marchal', 'Marque', 
+                         'Martial', 'Mayer', 'Medbouhi', 'Mediouni', 'Mehimda', 'Mendes', 'Merbah', 'Mercorelli', 'Mignard', 'Mignot', 
+                         'Millaniyage', 'Mobre', 'Mohellibi', 'Moindjie', 'Mokrab', 'Moncler', 'Moreira Da Silva', 'Moreno', 'Mothor', 
+                         'Moutou', 'Nalla', 'Netter', 'Ninoux', 'Noreskal', 'Nouri', 'Orlhac', 'Oster', 'Oubir', 'Paul', 'Paviot', 
+                         'Pereira da cunha', 'Phkar', 'Phouphetlinthong', 'Piouceau', 'Potier', 'Prehaud', 'Pret', 'Prieu', 'Quessette', 
+                         'Radelet', 'Rami', 'Rasamizanany', 'Razafindrabary', 'Reale', 'Reber', 'Regaud', 'Renard', 'Rili', 'Rincheval', 
+                         'Rios Campo', 'Romero', 'Rondey', 'Rotella', 'Rouinvy', 'Roy', 'Royere', 'Said', 'Saillard', 'Salic', 'Sami', 
+                         'Sandu', 'Sapriel', 'Screve', 'Seddiki', 'Seksaoui', 'Siaud', 'Sifi', 'Sitterlin', 'Sourdeval', 'Striebig', 
+                         'Strozecki', 'Szuplewzki', 'Tagba', 'Taher', 'Tang', 'Tang', 'Terki', 'Therage', 'Thibaudeau', 'Thibuta', 
+                         'Tieres', 'Tijari', 'Tseveendorj', 'Uthayakumar', 'Van', 'Vervel', 'Vial', 'Vichet', 'Vincens', 'Vissault', 
+                         'Wassaf', 'Wielgosz', 'Wu', 'Yapo', 'Younsi', 'Zelamta', 'Zemmouri']
+
 liste_num_serveurs = [k for k in range(0,11)]
 
 def serveurs_travaillant_sachant_service(jour, annee):
