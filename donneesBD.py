@@ -6,9 +6,9 @@ from datetime import datetime, timedelta
 
 num_commande = 1
 
-num_entrees = random.randint(1, 11)
-num_plats = random.randint(12, 28)
-num_desserts = random.randint(29, 45)
+num_entrees = [k for k in range(1, 11)]
+num_plats = [k for k in range(12, 28)]
+num_desserts = [k for k in range(29, 45)]
 
 dico_semaine = {'Tuesday':'Mar', 'Wednesday':'Mer', 'Thursday':'Jeu', 'Friday': 'Ven', 'Saturday':'Sam', 'Sunday':'Dim'}
 dico_mois = {'January':'Janvier', 'February':'Fevrier', 'March':'Mars', 'April':'Avril', 'May':'Mai', 'June':'Juin', 'July':'Juillet',
@@ -56,7 +56,6 @@ def dates_par_semaine_debut_mardi_sans_lundi():
     return liste_annee
 
 liste_annee = dates_par_semaine_debut_mardi_sans_lundi()
-print(liste_annee)
 
 def serveurs_travaillant_sachant_service(jour, annee):
     """ Retourne la liste des serveurs travaillant le jour et l'annnée correspondante"""
@@ -137,6 +136,39 @@ def commandes():
         semaine = transfo_date_python_to_sql(sem)
         commandes_semaine(semaine, fic_commandes)
     fic_commandes.close()
+
+#commandes()
+
+# tuples de la table EST_COMMANDE
+
+def est_commande():
+
+    l_choix = ['E', 'P', 'D', 'EP', 'ED', 'PD', 'DD', 'EE', 'PP', 'EPD', 'EPP', 'EEP', 'EED', 'PDD', 'EEPD', 'EPDD']
+    probas_choix = [(0.2/16), (2/16), (0.5/16), (3/16), (0.2/16), (5/16), (0.1/16), (0.4/16), (0.1/16), (3/16), (0.2/16), (0.1/16), (0.1/16), (0.5/16), (0.3/16), (0.3/16)]
+
+    with open('commandes.txt', 'r') as fic_commandes:
+        lignes = fic_commandes.readlines()
+    lignes_corrigees = [ligne.replace("NULL", "'NULL'") for ligne in lignes]
+    tuples = [eval(ligne.strip()) for ligne in lignes_corrigees]
+
+    fic_est_commande = open('est_commande.txt', 'w')
+
+    for tpl in tuples:
+        num_commande = tpl[0]
+        choix = random.choices(l_choix, probas_choix)[0]
+        for lettre_EPD in choix:
+            if lettre_EPD == 'E':
+                EPD = random.choice(num_entrees)
+            elif lettre_EPD == 'P':
+                EPD = random.choice(num_plats)
+            else:
+                EPD = random.choice(num_desserts)
+            tpl_est_commande = "(" + str(num_commande) + ", " + str(EPD) + ", " + '1' + ")"     # aucun client n'a commandé 2 fois le meme EPD
+            fic_est_commande.write(tpl_est_commande+'\n')
+    fic_est_commande.close()
+
+#est_commande()
+
 
 # pour les boissons, mettre souvent de l'eau
 # chaque commande a au moins une boisson associée ou un EPD
