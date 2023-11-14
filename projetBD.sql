@@ -19,7 +19,7 @@ CREATE TABLE FOURNISSEURS (
 CREATE TABLE BOISSONS (
     num_boisson number,
     nom_boisson varchar(30),
-    type_boisson varchar(20) CHECK((type_boisson IN ('eau', 'soda', 'vin', 'aperitif', 'digestif', 'cafe'))),
+    type_boisson varchar(20) CHECK((type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'vin', 'champagne', 'aperitif', 'digestif', 'cafe'))),
     unite varchar(20),
     prix_boisson_vente float CHECK(prix_boisson_vente>0 AND prix_boisson_vente<100),
     prix_boisson_achat float CHECK(prix_boisson_achat>0 AND prix_boisson_achat<100),
