@@ -177,9 +177,9 @@ def est_commande():
 # chaque commande a au moins une boisson associée ou un EPD
 
 def composition():
-    while 1:
-        EPD = input('EPD')
-        igd = input('ingredient')
-        print('('+str(EPD)+', '+str(igd))
+    
+    EPD = input('EPD')
+    igd = input('ingredient')
+    print('('+str(EPD)+', '+str(igd))
     return
 composition()
