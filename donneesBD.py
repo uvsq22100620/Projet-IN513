@@ -129,7 +129,7 @@ def commandes_semaine(l_semaine, fic_commandes):
             service = "'" + l_services[num_service%2] + "'"
             num_serveur = random.choices(serveurs_travaillant)[0]
             num_table = random.choices([k for k in range(1,16)], proba_tables)[0]
-            tuple_commande = "(" + str(num_commande) + ", " + nom_client + ", " + str(date_commande) + ", " + service + ", " + str(num_serveur) + ", " + str(num_table) + ")"
+            tuple_commande = str(num_commande) + ", " + nom_client + ", " + str(date_commande) + ", " + service + ", " + str(num_serveur) + ", " + str(num_table)
             fic_commandes.write(tuple_commande+'\n')
             num_commande += 1
 
@@ -166,7 +166,7 @@ def est_commande():
                 EPD = random.choice(num_plats)
             else:
                 EPD = random.choice(num_desserts)
-            tpl_est_commande = "(" + str(num_commande) + ", " + str(EPD) + ", " + '1' + ")"     # aucun client n'a commandé 2 fois le meme EPD
+            tpl_est_commande = str(num_commande) + ", " + str(EPD) + ", " + '1'     # aucun client n'a commandé 2 fois le meme EPD
             fic_est_commande.write(tpl_est_commande+'\n')
     fic_est_commande.close()
 
@@ -175,3 +175,11 @@ def est_commande():
 
 # pour les boissons, mettre souvent de l'eau
 # chaque commande a au moins une boisson associée ou un EPD
+
+def composition():
+    while 1:
+        EPD = input('EPD')
+        igd = input('ingredient')
+        print('('+str(EPD)+', '+str(igd))
+    return
+composition()
