@@ -184,6 +184,7 @@ def est_commande():
 # pour les boissons, mettre souvent de l'eau
 # chaque commande a au moins une boisson associée ou un EPD
 
+<<<<<<< HEAD
 #def composition():
     #fic = open('composition.txt', 'a')
     #for i in range(3):
@@ -229,3 +230,12 @@ def a_boire():
             lettre_boissons += 'V'    
     
     fic_a_boire.close()
+=======
+def composition():
+    
+    EPD = input('EPD')
+    igd = input('ingredient')
+    print('('+str(EPD)+', '+str(igd))
+    return
+composition()
+>>>>>>> f2db7815463d7ac71dc576adeb9342097a952412
