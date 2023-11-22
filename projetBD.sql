@@ -19,10 +19,10 @@ CREATE TABLE FOURNISSEURS (
 CREATE TABLE BOISSONS (
     num_boisson number,
     nom_boisson varchar(30),
-    type_boisson varchar(20) CHECK((type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'vin', 'champagne', 'aperitif', 'digestif', 'cafe'))),
-    unite varchar(20),
-    prix_boisson_vente float CHECK(prix_boisson_vente>0 AND prix_boisson_vente<100),
-    prix_boisson_achat float CHECK(prix_boisson_achat>0 AND prix_boisson_achat<100),
+    type_boisson varchar(20) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'vin', 'champagne', 'aperitif', 'digestif', 'cafe')),
+    unite varchar(20) CHECK(unite IN ('L', 'canette', 'bouteille')),
+    prix_boisson_vente float CHECK(prix_boisson_vente BETWEEN 0 and 100),
+    prix_boisson_achat float CHECK(prix_boisson_achat BETWEEN 0 and 100),
     num_fournisseur number,
     CONSTRAINT pk_boissons PRIMARY KEY (num_boisson),
     CONSTRAINT fk_boissons FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur)
@@ -61,7 +61,7 @@ CREATE TABLE INGREDIENTS (
 CREATE TABLE A_BOIRE (
     num_commande number,
     num_boisson number,
-    nb_unites float CHECK(nb_unites>0),
+    nb_unites float,
     CONSTRAINT pk_A_boire PRIMARY KEY (num_commande, num_boisson),
     CONSTRAINT fk_A_boire_1 FOREIGN KEY (num_commande) REFERENCES COMMANDES (num_commande),
     CONSTRAINT fk_A_boire_2 FOREIGN KEY (num_boisson) REFERENCES BOISSONS (num_boisson)
