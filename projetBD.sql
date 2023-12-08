@@ -83,3 +83,71 @@ CREATE TABLE EST_COMMANDE (
     CONSTRAINT fk_est_commande_1 FOREIGN KEY (num_commande) REFERENCES COMMANDES (num_commande),
     CONSTRAINT fk_est_commande_2 FOREIGN KEY (num_carte) REFERENCES CARTE (num_carte)
 );
+
+
+-- Combien de bouteilles de vin ont été vendues le samedi 14 octobre 2023 ?
+-- Pour rappel, une bouteille de vin a une contenance de 75 cL et un verre de vin est de contenance 17 cL.
+
+DECLARE
+    CURSOR c1 AS SELECT * FROM A_boire;
+    drink_type varchar(15) := '0';
+    nb_tot_bouteilles int := 0;
+BEGIN
+    FOR tuple IN c1 LOOP
+        drink_type := SELECT b.type_boisson
+                        FROM Boissons B
+                        WHERE B.num_boisson = tuple.num_boisson
+        IF drink_type = 'vin' AND mod(tuple.nb_unites, 0.75) = 0 THEN
+            nb_tot_bouteilles := nb_tot_bouteilles + (tuple.nb_unites/0.75)
+        END IF;
+    END LOOP;               -- il faut ensuite renvoyer le resultat
+END;
+/
+
+-- Quels sont les noms des clients qui ont réservé une table le vendredi 21 avril 2023 ?
+
+SELECT nom_client
+FROM Client
+WHERE date_commande = 'Ven-21-Avril-2023'
+AND nom_client IS NOT NULL;
+
+-- Quels sont les desserts dont le prix est inférieur ou égal à 10 euros ?
+
+SELECT nom_carte
+FROM CARTE
+WHERE type_EPD = 'D'
+AND prix_carte <= 10;
+
+-- Quels sont les serveurs qui n'ont pas travaillé la semaine du 06/11/2023 ?  Combien sont-ils ?
+
+SELECT num_serveur
+FROM Serveurs
+WHERE num_serveur NOT IN (SELECT num_serveur
+                            FROM Serveurs S, Commande C
+                            WHERE S.num_serveur = C.num_serveur
+                            AND C.date_commande = '%-11-2023');      -- ATTENTION : il faut trouver un moyen de verifier que c'est la bonne semaine
+
+-- Quels sont les EPD qui contiennent du lait ou des œufs ou poisson ou noix ?
+
+SELECT nom_carte, nom_igd
+FROM Carte C, Ingredients I, Composition Co
+WHERE Co.num_carte = C.num_carte
+AND Co.num_igd = I.num_igd
+AND I.nom_igd IN ('lait', 'oeuf'); -- ...
+
+-- En août 2023, combien d’argent les boissons ont-elles générées ? Quel était le prix total de l’achat de ces boissons aux fournisseurs ?
+
+SELECT sum(A.nb_unites*B.prix_boissons_achat) as somme_vente,
+        sum(A.nb_unites*B.prix_boisson_vente) as somme_achat,
+        (somme_achat-somme_vente) as marge
+FROM A_boire A, Boissons B, Commandes C
+WHERE A.num_boisson = B.num_boisson
+AND A.num_commande = C.num_commande
+AND C.date_commande = '%-08-2023';
+
+-- Retourner les ingrédients dont le stock est inférieur à 10 unités ainsi que leur fournisseur.
+
+SELECT I.num_igd, I.nom_igd, F.nom_fournisseur, F.num_tel
+FROM Ingredients I, Fournisseurs F
+WHERE I.num_fournisseur = F.num_fournisseur
+AND I.stock < 10;
