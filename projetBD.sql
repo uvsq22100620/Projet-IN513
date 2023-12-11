@@ -1,4 +1,4 @@
---Projet IN513 : LE CORRE Camille - LEFEVRE Laura
+-- Projet IN513 - LE CORRE Camille et LEFEVRE Laura
 
 CREATE TABLE CARTE (
     num_carte number,
@@ -170,3 +170,23 @@ SELECT I.num_igd, I.nom_igd, F.nom_fournisseur, F.num_tel
 FROM Ingredients I, Fournisseurs F
 WHERE I.num_fournisseur = F.num_fournisseur
 AND I.stock < 10;
+
+-- Donner la dépense moyenne d’un client de la semaine du 04/01/2021 en fonction des services du midi et du soir.
+
+SELECT avg(depenses_midi.depenses) AS moyenne_midi, avg(depenses_soir.depenses) AS moyenne_soir
+FROM (SELECT sum(Ca.prix_carte)+sum(B.prix_boisson_vente) as depenses
+        FROM Commandes Co, Carte Ca, Boissons B, Est_commande EC, A_boire AB
+        WHERE Ca.num_carte = EC.num_carte
+        AND EC.num_commande = Co.num_commande
+        AND Co.num_commande = AB.num_commande
+        AND AB.num_boisson = B.num_boisson
+        AND Co.service = 'M'
+        AND Co.date_commande = '%-01-2021') depenses_midi
+    (SELECT sum(Ca.prix_carte)+sum(B.prix_boisson_vente) as depenses
+        FROM Commandes Co, Carte Ca, Boissons B, Est_commande EC, A_boire AB
+        WHERE Ca.num_carte = EC.num_carte
+        AND EC.num_commande = Co.num_commande
+        AND Co.num_commande = AB.num_commande
+        AND AB.num_boisson = B.num_boisson
+        AND Co.service = 'S'
+        AND Co.date_commande = '%-01-2021') depenses_soir;
