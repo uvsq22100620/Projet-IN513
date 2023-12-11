@@ -104,7 +104,6 @@ INSERT INTO FOURNISSEURS values (16, 'Chateau Petillant de Marne', 'Chambourcy',
 INSERT INTO FOURNISSEURS values (17, 'Evian', 'Evian', '01 12 43 00 15');
 INSERT INTO FOURNISSEURS values (18, 'Laumont', 'Strasbourg', '01 98 02 76 54');
 
-
 -- Combien de bouteilles de vin ont été vendues le samedi 14 octobre 2023 ?
 -- Pour rappel, une bouteille de vin a une contenance de 75 cL et un verre de vin est de contenance 17 cL.
 
