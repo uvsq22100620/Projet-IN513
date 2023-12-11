@@ -144,6 +144,13 @@ BEGIN
 END;
 /
 
+CREATE OR REPLACE procedure augmenter_stock (num_ingredient, nb_unites) IS
+BEGIN
+    UPDATE Ingredients SET stock = stock + nb_unites
+        WHERE num_igd = num_ingredient
+END;
+/
+
 -- REQUETES
 
 -- Combien de bouteilles de vin ont été vendues le samedi 14 octobre 2023 ?
