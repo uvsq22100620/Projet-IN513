@@ -234,9 +234,9 @@ def composition():
     fic = open('composition.txt', 'a')
     EPD=0
     while EPD != 'stop':
-        EPD = input('EPD')
-        igd = input('ingredient')
-        nb_unites = input('nb_unites')
+        EPD = input('EPD : ')
+        igd = input('ingredient : ')
+        nb_unites = input('nb_unites : ')
         fic.write(EPD + ', ' + igd + ', ' + nb_unites + '\n')
     fic.close()
     return

@@ -1,0 +1,11 @@
+0,'Foquet', 'Ambre', 'F'
+1, 'Trottier', 'Nicolas', 'H'
+2, 'Sertin', 'Jerome', 'H'
+3, 'Ricord', 'Stephane', 'H'
+4, 'Lagneux', 'Natalie', 'F'
+5, 'Clissard', 'Thibaut', 'H'
+6, 'Vadili', 'Samantha', 'F'
+7, 'Lecuyer', 'Fabien', 'H'
+8, 'Salois', 'Florine', 'F'
+9, 'Brasseur', 'Elise', 'F'
+10, 'Trudeau', 'Matthieu', NULL

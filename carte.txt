@@ -1,0 +1,45 @@
+1, 'soupe a l oignon', 'E', 11
+2, 'pate en croute', 'E', 9
+3, 'tomate-mozza', 'E', 9
+4, 'planche de charcuterie', 'E', 15.5
+5, 'oeuf cocotte a la truffe', 'E', 12
+6, 'couteaux en persillade', 'E', 13
+7, 'salade cesar', 'E', 13.5
+8, 'verrine avocat-crevette', 'E', 12
+9, 'tartelette chevre-figue-noix', 'E', 10
+10, 'saumon fume', 'E', 13
+11, 'st jacques et fondue de poireaux', 'E', 14
+12, 'filet mignon aux morilles et ecrase de pdt', 'P', 19.5
+13, 'ravioles aux champignons', 'P', 19
+14, 'ravioles a la langoustine', 'P', 23
+15, 'roti de boeuf sauce au poivre et pommes grenailles', 'P', 25.5
+16, 'filet de st pierre et sauce hollandaise', 'P', 23.5
+17, 'poulpe roti et puree d artichaut', 'P', 24
+18, 'tartare de boeuf frites', 'P', 23
+19, 'risotto aux asperges', 'P', 19
+20, 'cotelettes d agneau - legumes rotis et pdt persillees', 'P', 22.5
+21, 'aubergine rotie a la feta', 'P', 17.5
+22, 'parmentier de canard', 'P', 20
+23, 'aile de raie aux capres', 'P', 21.5
+24, 'thon rouge snacke et puree de celeri', 'P', 22
+25, 'lasagnes vegetariennes', 'P', 18
+26, 'steak frites', 'P', 20
+27, 'escalope de poulet - riz', 'P', 18.5
+28, 'sole meuniere - riz', 'P', 18.5
+29, 'tiramisu', 'D', 8.5
+30, 'tartelette citron meringuee', 'D', 9
+31, 'pavlova fruits rouges', 'D', 9
+32, 'mousse au chocolat', 'D', 7.5
+33, 'mi-cuit au chocolat', 'D', 8
+34, 'panna cotta a la mangue', 'D', 8
+35, 'cheesecake au speculoos', 'D', 9
+36, 'croustillant a l abricot', 'D', 7
+37, 'clafouti a la cerise', 'D', 9.5
+38, 'riz au lait - caramel beurre sale maison', 'D', 7.5
+39, 'brochette de fruits de saison', 'D', 6
+40, 'ananas flambe', 'D', 7
+41, 'creme brulee', 'D', 7.5
+42, 'glace a la vanille', 'D', 3
+43, 'glace au chocolat', 'D', 3
+44, 'glace a la framboise', 'D', 3
+

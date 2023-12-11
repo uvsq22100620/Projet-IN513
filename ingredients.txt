@@ -1,0 +1,72 @@
+1, 'farine', 'kg', 0.75, 8
+2, 'lait', 'L', 1.3, 10
+3, 'beurre', 'kg', 3, 10
+4, 'oeuf', 'oeufs', 0.15, 9
+5, 'sucre', 'kg', 3, 8
+6, 'creme', 'L', 4.2, 10
+7, 'pain', 'kg', 3.9, 8
+8, 'levure', 'kg', 22
+9, 'riz', 'kg', 2.5, 8
+10, 'riz rond', 2.6, 8
+11, 'pate lasagne', 'kg', 1.6, 8
+12, 'pdt', 'kg', 2, 3
+13, 'filet mignon', 'kg', 11, 7
+14, 'boeuf', 'kg', 15, 6
+15, 'confit canard', 18, 7
+16, 'cotelette agneaux', 17.5, 7
+17, 'poulet', 'kg', 13.5,
+18, 'jambon blanc', 'kg','
+19, 'jambon sec', 'kg','
+20, 'mortadelle', 'kg','
+21, 'rosette', 'kg','
+22, 'saumon fume', 'kg', 21, 5
+23, 'sole', 'kg', 17, 4
+24, 'st pierre', 'kg', 24, 4
+25, 'thon rouge', 'kg', 14, 5
+26, 'poulpe', 'kg', 40.8, 5
+27, 'couteau', 'kg', 13.5, 4
+28, 'crevette', 'kg', 9, 4
+29, 'saint jacques', 'kg', 15.5, 4
+30, 'langoustine', 'kg', 30, 4
+31, 'chevre', 'kg', 14, 7
+32, 'mozzarella', 'kg', 10, 10
+33, 'emmental', 'kg', 10.5, 10
+34, 'mascarpone', 'kg', 9.5, 10
+35, 'parmesan', 'kg', 11, 10
+36, 'feta', 'kg', 8.4, 7
+37, 'capres', 'kg', 7, 2
+38, 'citron', 'kg', 2.5, 12
+39, 'mangue', 'kg', 10, 12
+40, 'fraise', 'kg', 13.5
+41, 'framboises', 'kg', 18
+42, 'myrtille', 'kg', 17
+43, 'cerise', 'kg', 3,
+44, 'figue', 'kg', 15, 12
+45, 'abricot', 'kg', 2.4,
+46, 'ananas', 'kg', 3.2
+47, 'oignon', 'kg', 1.2, 3
+48, 'ail', 'kg', 4, 3
+49, 'tomate', 'kg', 3.6, 2
+50, 'avocat', 'kg', 16, 2
+51, 'courgette', 'kg', 3.8, 3
+52, 'aubergine', 'kg', 1.7, 2
+53, 'navet', 'kg', 2.9, 2
+54, 'carotte', 'kg', 1.2, 2
+55, 'salade', 'kg', 6,
+56, 'artichaut', 'kg', 6, 1
+57, 'celeri', 'kg', 2.5, 1
+58, 'poireau', 'kg', 3, 2
+59, truffe noire', 'kg', 200, 18
+60, 'cepe', 'kg', '50, 18
+61, 'morille', 'kg', 45, 18
+62, 'noix', 'kg', 4.5, 1
+63, 'biscuit cuillere', 'kg', 5, 8
+64, 'speculoos', 'kg', 13,'8
+65, 'chocolat', 'kg', 11.2, 11
+66, 'poudre cacao', 'kg', 4.5, 11
+67, 'cafe soluble', 'kg', '3.7, 12
+68, 'asperge', 'kg','4.6, 1
+69, 'raie', 'kg', 17, 4, 5
+70, 'glace vanille', 'kg', 10
+71, 'glace chocolat', 'kg','10
+72, 'glace framboise', 'kg', 10
