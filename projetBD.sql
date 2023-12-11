@@ -10,7 +10,7 @@ CREATE TABLE CARTE (
 
 CREATE TABLE FOURNISSEURS (
     num_fournisseur number,
-    nom_fournisseur varchar(20),
+    nom_fournisseur varchar(30),
     ville varchar(30),
     num_tel varchar(10) UNIQUE,
     CONSTRAINT pk_fournisseurs PRIMARY KEY (num_fournisseur)
@@ -83,6 +83,26 @@ CREATE TABLE EST_COMMANDE (
     CONSTRAINT fk_est_commande_1 FOREIGN KEY (num_commande) REFERENCES COMMANDES (num_commande),
     CONSTRAINT fk_est_commande_2 FOREIGN KEY (num_carte) REFERENCES CARTE (num_carte)
 );
+
+-- Commandes d'insertion des valeurs
+INSERT INTO FOURNISSEURS values (1, 'Fruity&Co', 'Versailles', '01 23 45 67 89');
+INSERT INTO FOURNISSEURS values (2, 'Natures Bounty Produce', 'Saint-Germain-en-Laye', '01 34 56 78 90');
+INSERT INTO FOURNISSEURS values (3, 'FreshHarvest Market', 'Poissy', '01 29 84 76 53');
+INSERT INTO FOURNISSEURS values (4, 'Poissonnerie MerEclat', 'Trouville-sur-Mer', '02 31 45 67 89');
+INSERT INTO FOURNISSEURS values (5, 'Mer et saveurs', 'Saint-Germain-en-Laye', '01 49 63 85 27');
+INSERT INTO FOURNISSEURS values (6, 'La Ferme Des Limousines', 'Vicq', '06 62 25 82 35');
+INSERT INTO FOURNISSEURS values (7, 'Ferme des Trois Chenes', 'Montfort-l_Amaury', '07 27 49 63 85');
+INSERT INTO FOURNISSEURS values (8, 'Moulin de la Vallee Blanche', 'Maule', '06 73 92 84 56');
+INSERT INTO FOURNISSEURS values (9, 'Ferme des Œufs Dores', 'Auffargis', '01 68 43 57 29');
+INSERT INTO FOURNISSEURS values (10, 'Laiterie des Champs Fleuries', 'Houdan', '01 37 59 82 64');
+INSERT INTO FOURNISSEURS values (11, 'Chocolaterie Douce Delice', 'Le Vesinet', '07 92 83 46 57');
+INSERT INTO FOURNISSEURS values (12, 'Tropic Exotica Fruits', 'Les Mureaux', '01 32 54 76 98');
+INSERT INTO FOURNISSEURS values (13, 'Drinks&Co', 'Plaisir', '06 54 32 10 98');
+INSERT INTO FOURNISSEURS values (14, 'Arome Divin Distillery', 'Versailles', '01 47 89 12 34');
+INSERT INTO FOURNISSEURS values (15, 'Vignoble des Deux Rivieres', 'Le Chesnay', '01 39 45 78 89');
+INSERT INTO FOURNISSEURS values (16, 'Chateau Petillant de Marne', 'Chambourcy', '06 12 34 56 78');
+INSERT INTO FOURNISSEURS values (17, 'Evian', 'Evian', '01 12 43 00 15');
+INSERT INTO FOURNISSEURS values (18, 'Laumont', 'Strasbourg', '01 98 02 76 54');
 
 
 -- Combien de bouteilles de vin ont été vendues le samedi 14 octobre 2023 ?
