@@ -104,6 +104,47 @@ INSERT INTO FOURNISSEURS values (16, 'Chateau Petillant de Marne', 'Chambourcy',
 INSERT INTO FOURNISSEURS values (17, 'Evian', 'Evian', '01 12 43 00 15');
 INSERT INTO FOURNISSEURS values (18, 'Laumont', 'Strasbourg', '01 98 02 76 54');
 
+-- TRIGGERS
+
+-- Le prix d'un EPD doit être supérieur à la somme des prix des ingrédients qui le compose
+
+CREATE OR REPLACE trigger prix_EPD_1
+    BEFORE INSERT OR UPDATE ON Carte
+DECLARE
+    cout Number(7,4) := 0;
+BEGIN
+    SELECT sum(I.prix_igd*Co.nb_unites) INTO cout
+    FROM Ingredients I, Composition Co
+    WHERE :new.num_carte = Co.num_carte
+    AND Co.num_igd = I.num_igd
+    IF :new.prix_carte <= cout THEN raise application_error(001, 'Le prix de vente cet EPD est trop faible comparé à son coût de production.')
+END;
+/
+
+CREATE OR REPLACE trigger prix_EPD_2
+    BEFORE INSERT OR UPDATE ON Composition
+        FOR EACH ROW
+DECLARE
+    cout Number(7,4) := 0;
+BEGIN
+    SELECT sum(I.prix_igd*:new.nb_unites) INTO cout
+    FROM Ingredients I, Carte C
+    WHERE :new.num_carte = C.num_carte
+    IF cout >= C.prix_carte THEN raise application_error(002, 'Le prix de vente d un EPD est trop faible comparé à son coût de production')
+END;
+/
+
+-- Pour chaque commande, le stock des ingrédients nécessaires aux EPD commandés diminue.
+-- Si le stock n’est pas suffisant à la préparation, alors le client doit en choisir un autre.
+
+CREATE OR REPLACE trigger assez_igd
+    BEFORE INSERT OR UPDATE ON Est_commande
+BEGIN
+END;
+/
+
+-- REQUETES
+
 -- Combien de bouteilles de vin ont été vendues le samedi 14 octobre 2023 ?
 -- Pour rappel, une bouteille de vin a une contenance de 75 cL et un verre de vin est de contenance 17 cL.
 
@@ -144,7 +185,7 @@ FROM Serveurs
 WHERE num_serveur NOT IN (SELECT num_serveur
                             FROM Serveurs S, Commande C
                             WHERE S.num_serveur = C.num_serveur
-                            AND C.date_commande = '%-11-2023');      -- ATTENTION : il faut trouver un moyen de verifier que c'est la bonne semaine
+                            AND WEEK(C.date_commande) = WEEK (06-11-2023) and YEAR(C.date_commande) = YEAR(06-11-2023));
 
 -- Quels sont les EPD qui contiennent du lait ou des œufs ou poisson ou noix ?
 
@@ -181,7 +222,7 @@ FROM (SELECT sum(Ca.prix_carte)+sum(B.prix_boisson_vente) as depenses
         AND Co.num_commande = AB.num_commande
         AND AB.num_boisson = B.num_boisson
         AND Co.service = 'M'
-        AND Co.date_commande = '%-01-2021') depenses_midi
+        AND WEEK(Co.date_commande) = WEEK(04-01-2021) and YEAR(Co.date_commande) = YEAR(04-01-2021))depenses_midi
     (SELECT sum(Ca.prix_carte)+sum(B.prix_boisson_vente) as depenses
         FROM Commandes Co, Carte Ca, Boissons B, Est_commande EC, A_boire AB
         WHERE Ca.num_carte = EC.num_carte
@@ -189,4 +230,6 @@ FROM (SELECT sum(Ca.prix_carte)+sum(B.prix_boisson_vente) as depenses
         AND Co.num_commande = AB.num_commande
         AND AB.num_boisson = B.num_boisson
         AND Co.service = 'S'
-        AND Co.date_commande = '%-01-2021') depenses_soir;
+        AND WEEK(Co.date_commande) = WEEK(04-01-2021) and YEAR(Co.date_commande) = YEAR(04-01-2021)) depenses_soir;
+
+
