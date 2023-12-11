@@ -4,7 +4,7 @@ CREATE TABLE CARTE (
     num_carte number,
     nom_carte varchar(30),
     typeEPD varchar(1) CHECK(typeEPD IN ('E', 'P', 'D')),
-    prix_carte float CHECK(prix_carte>0 AND prix_carte<100),
+    prix_carte float CHECK(prix_carte >0 AND prix_carte<100),
     CONSTRAINT pk_carte PRIMARY KEY (num_carte)
 );
 
@@ -21,8 +21,8 @@ CREATE TABLE BOISSONS (
     nom_boisson varchar(30),
     type_boisson varchar(20) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'vin', 'champagne', 'aperitif', 'digestif', 'cafe')),
     unite varchar(20) CHECK(unite IN ('L', 'canette', 'bouteille')),
-    prix_boisson_vente float CHECK(prix_boisson_vente BETWEEN 0 and 100),
-    prix_boisson_achat float CHECK(prix_boisson_achat BETWEEN 0 and 100),
+    prix_boisson_vente float CHECK(prix_boisson_vente>0 AND prix_boisson_vente<100),
+    prix_boisson_achat float CHECK(prix_boisson_achat>0 and prix_boisson_achat<100),
     num_fournisseur number,
     CONSTRAINT pk_boissons PRIMARY KEY (num_boisson),
     CONSTRAINT fk_boissons FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur)
@@ -41,7 +41,7 @@ CREATE TABLE COMMANDES (
     nom_client varchar(30),
     date_commande date,
     service varchar(1) CHECK(service IN ('M', 'S')),
-    num_table number CHECK(num_table>=1 AND num_table<=15),
+    num_table number CHECK(num_table BETWEEN 1 AND 15),
     num_serveur number,
     CONSTRAINT pk_commandes PRIMARY KEY (num_commande),
     CONSTRAINT fk_commandes FOREIGN KEY (num_serveur) REFERENCES SERVEURS (num_serveur)
@@ -137,7 +137,7 @@ AND I.nom_igd IN ('lait', 'oeuf'); -- ...
 
 -- En août 2023, combien d’argent les boissons ont-elles générées ? Quel était le prix total de l’achat de ces boissons aux fournisseurs ?
 
-SELECT sum(A.nb_unites*B.prix_boissons_achat) as somme_vente,
+SELECT sum(A.nb_unites*B.prix_boisson_achat) as somme_vente,
         sum(A.nb_unites*B.prix_boisson_vente) as somme_achat,
         (somme_achat-somme_vente) as marge
 FROM A_boire A, Boissons B, Commandes C
