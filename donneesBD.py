@@ -13,10 +13,10 @@ num_desserts = [k for k in range(29, 44)]
 
 # boissons
 num_eau = [1, 2]
-num_ss_alcool = [k for k in range(3,18)]
+num_ss_alcool = [k for k in range(3,11)] + [k for k in range(13,18)]
+num_cafe = [11, 12]
 num_vin = [k for k in range(18,30)]
 num_alcool = [k for k in range(30,41)]
-num_cafe = [41, 42]
 
 dico_semaine = {'Tuesday':'Mar', 'Wednesday':'Mer', 'Thursday':'Jeu', 'Friday': 'Ven', 'Saturday':'Sam', 'Sunday':'Dim'}
 dico_mois = {'January':'Janvier', 'February':'Fevrier', 'March':'Mars', 'April':'Avril', 'May':'Mai', 'June':'Juin', 'July':'Juillet',
@@ -197,17 +197,21 @@ def a_boire():
         num_commande = tpl[0]
         lettre_boissons = ""
 
-        eau = random.choices([True, False], [0.5, 0.5])
+        eau = random.choices([True, False], [0.25, 0.75])
         if eau :
             lettre_boissons += 'E'
 
-        ss_alcool = random.choices([True, False], [0.5, 0.5])
+        ss_alcool = random.choices([True, False], [0.2, 0.8])
         if ss_alcool :
             lettre_boissons += 'S'
 
-        vin = random.choices([True, False], [0.5, 0.5])
+        vin = random.choices([True, False], [0.05, 0.95])
         if vin :
-            lettre_boissons += 'V'    
+            lettre_boissons += 'V'
+
+        cafe = random.choices([True, False], [0.15, 0.85])
+        if cafe :
+            lettre_boissons += 'C' 
     
     fic_a_boire.close()
 
