@@ -19,7 +19,7 @@ CREATE TABLE FOURNISSEURS (
 CREATE TABLE BOISSONS (
     num_boisson number,
     nom_boisson varchar(30),
-    type_boisson varchar(20) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'vin', 'champagne', 'aperitif', 'digestif', 'cafe', NULL)),
+    type_boisson VARCHAR(20) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'vin', 'champagne', 'aperitif', 'digestif', 'cafe')),
     unite varchar(20) CHECK(unite IN ('L', 'canette', 'bouteille', 'kg')),
     prix_boisson_vente float CHECK(prix_boisson_vente>0.0),
     prix_boisson_achat float CHECK(prix_boisson_achat>0.0),
@@ -27,6 +27,7 @@ CREATE TABLE BOISSONS (
     CONSTRAINT pk_boissons PRIMARY KEY (num_boisson),
     CONSTRAINT fk_boissons FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur)
 );
+
 
 CREATE TABLE SERVEURS (
     num_serveur number,
