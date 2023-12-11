@@ -32,7 +32,7 @@
 32, 'biere', NULL, 'L', 16, 13, 7.9
 33, 'whisky', NULL, 'L', 200, 14, 99.99
 34, 'gin', 'aperitif', 'L', 45.8, 14, 24.99
-35, 'rhum', 'digestif', 'L', 197.5, 14, 95.5�
+35, 'rhum', 'digestif', 'L', 197.5, 14, 95.5
 36, 'limoncello', 'digestif', 'L', 150, 14, 75
 37, 'ouzo', 'digestif', 'L', 195, 14, 88.8
 38, 'sake', 'digestif', 'L', 49.9, 14, 25
