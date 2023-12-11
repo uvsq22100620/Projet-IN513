@@ -4,13 +4,13 @@ CREATE TABLE CARTE (
     num_carte number,
     nom_carte varchar(30),
     typeEPD varchar(1) CHECK(typeEPD IN ('E', 'P', 'D')),
-    prix_carte float CHECK(prix_carte>0 AND prix_carte<100),
+    prix_carte float CHECK(prix_carte >0 AND prix_carte<100),
     CONSTRAINT pk_carte PRIMARY KEY (num_carte)
 );
 
 CREATE TABLE FOURNISSEURS (
     num_fournisseur number,
-    nom_fournisseur varchar(20),
+    nom_fournisseur varchar(30),
     ville varchar(30),
     num_tel varchar(10) UNIQUE,
     CONSTRAINT pk_fournisseurs PRIMARY KEY (num_fournisseur)
@@ -21,8 +21,8 @@ CREATE TABLE BOISSONS (
     nom_boisson varchar(30),
     type_boisson varchar(20) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'vin', 'champagne', 'aperitif', 'digestif', 'cafe')),
     unite varchar(20) CHECK(unite IN ('L', 'canette', 'bouteille')),
-    prix_boisson_vente float CHECK(prix_boisson_vente BETWEEN 0 and 100),
-    prix_boisson_achat float CHECK(prix_boisson_achat BETWEEN 0 and 100),
+    prix_boisson_vente float CHECK(prix_boisson_vente>0 AND prix_boisson_vente<100),
+    prix_boisson_achat float CHECK(prix_boisson_achat>0 and prix_boisson_achat<100),
     num_fournisseur number,
     CONSTRAINT pk_boissons PRIMARY KEY (num_boisson),
     CONSTRAINT fk_boissons FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur)
@@ -41,7 +41,7 @@ CREATE TABLE COMMANDES (
     nom_client varchar(30),
     date_commande date,
     service varchar(1) CHECK(service IN ('M', 'S')),
-    num_table number CHECK(num_table>=1 AND num_table<=15),
+    num_table number CHECK(num_table BETWEEN 1 AND 15),
     num_serveur number,
     CONSTRAINT pk_commandes PRIMARY KEY (num_commande),
     CONSTRAINT fk_commandes FOREIGN KEY (num_serveur) REFERENCES SERVEURS (num_serveur)
@@ -83,6 +83,26 @@ CREATE TABLE EST_COMMANDE (
     CONSTRAINT fk_est_commande_1 FOREIGN KEY (num_commande) REFERENCES COMMANDES (num_commande),
     CONSTRAINT fk_est_commande_2 FOREIGN KEY (num_carte) REFERENCES CARTE (num_carte)
 );
+
+-- Commandes d'insertion des valeurs
+INSERT INTO FOURNISSEURS values (1, 'Fruity&Co', 'Versailles', '01 23 45 67 89');
+INSERT INTO FOURNISSEURS values (2, 'Natures Bounty Produce', 'Saint-Germain-en-Laye', '01 34 56 78 90');
+INSERT INTO FOURNISSEURS values (3, 'FreshHarvest Market', 'Poissy', '01 29 84 76 53');
+INSERT INTO FOURNISSEURS values (4, 'Poissonnerie MerEclat', 'Trouville-sur-Mer', '02 31 45 67 89');
+INSERT INTO FOURNISSEURS values (5, 'Mer et saveurs', 'Saint-Germain-en-Laye', '01 49 63 85 27');
+INSERT INTO FOURNISSEURS values (6, 'La Ferme Des Limousines', 'Vicq', '06 62 25 82 35');
+INSERT INTO FOURNISSEURS values (7, 'Ferme des Trois Chenes', 'Montfort-l_Amaury', '07 27 49 63 85');
+INSERT INTO FOURNISSEURS values (8, 'Moulin de la Vallee Blanche', 'Maule', '06 73 92 84 56');
+INSERT INTO FOURNISSEURS values (9, 'Ferme des Œufs Dores', 'Auffargis', '01 68 43 57 29');
+INSERT INTO FOURNISSEURS values (10, 'Laiterie des Champs Fleuries', 'Houdan', '01 37 59 82 64');
+INSERT INTO FOURNISSEURS values (11, 'Chocolaterie Douce Delice', 'Le Vesinet', '07 92 83 46 57');
+INSERT INTO FOURNISSEURS values (12, 'Tropic Exotica Fruits', 'Les Mureaux', '01 32 54 76 98');
+INSERT INTO FOURNISSEURS values (13, 'Drinks&Co', 'Plaisir', '06 54 32 10 98');
+INSERT INTO FOURNISSEURS values (14, 'Arome Divin Distillery', 'Versailles', '01 47 89 12 34');
+INSERT INTO FOURNISSEURS values (15, 'Vignoble des Deux Rivieres', 'Le Chesnay', '01 39 45 78 89');
+INSERT INTO FOURNISSEURS values (16, 'Chateau Petillant de Marne', 'Chambourcy', '06 12 34 56 78');
+INSERT INTO FOURNISSEURS values (17, 'Evian', 'Evian', '01 12 43 00 15');
+INSERT INTO FOURNISSEURS values (18, 'Laumont', 'Strasbourg', '01 98 02 76 54');
 
 
 -- Combien de bouteilles de vin ont été vendues le samedi 14 octobre 2023 ?
@@ -137,7 +157,7 @@ AND I.nom_igd IN ('lait', 'oeuf'); -- ...
 
 -- En août 2023, combien d’argent les boissons ont-elles générées ? Quel était le prix total de l’achat de ces boissons aux fournisseurs ?
 
-SELECT sum(A.nb_unites*B.prix_boissons_achat) as somme_vente,
+SELECT sum(A.nb_unites*B.prix_boisson_achat) as somme_vente,
         sum(A.nb_unites*B.prix_boisson_vente) as somme_achat,
         (somme_achat-somme_vente) as marge
 FROM A_boire A, Boissons B, Commandes C
