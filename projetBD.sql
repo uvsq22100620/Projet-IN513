@@ -19,14 +19,27 @@ CREATE TABLE FOURNISSEURS (
 CREATE TABLE BOISSONS (
     num_boisson number,
     nom_boisson varchar(30),
-    type_boisson varchar(20) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'vin', 'champagne', 'aperitif', 'digestif', 'cafe')),
-    unite varchar(20) CHECK(unite IN ('L', 'canette', 'bouteille')),
-    prix_boisson_vente float CHECK(prix_boisson_vente>0 AND prix_boisson_vente<100),
-    prix_boisson_achat float CHECK(prix_boisson_achat>0 and prix_boisson_achat<100),
+    type_boisson varchar(20) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'vin', 'champagne', 'aperitif', 'digestif', 'cafe', NULL)),
+    unite varchar(20) CHECK(unite IN ('L', 'canette', 'bouteille', 'kg')),
+    prix_boisson_vente float CHECK(prix_boisson_vente>0.0),
+    prix_boisson_achat float CHECK(prix_boisson_achat>0.0),
     num_fournisseur number,
     CONSTRAINT pk_boissons PRIMARY KEY (num_boisson),
     CONSTRAINT fk_boissons FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur)
 );
+
+SELECT CONSTRAINT_NAME
+FROM USER_CONS_COLUMNS
+WHERE TABLE_NAME = 'BOISSONS' AND COLUMN_NAME = 'prix_boisson_vente';
+INSERT INTO BOISSONS VALUES (36, 'limoncello', 'digestif', 'L', 150, 14, 75)
+
+SELECT SEARCH_CONDITION
+FROM ALL_CONSTRAINTS
+WHERE TABLE_NAME = 'BOISSONS' AND CONSTRAINT_NAME = 'ETUDIANT.SYS_C0024680' AND CONSTRAINT_TYPE = 'C';
+
+ALTER TABLE boissons
+DROP CONSTRAINT ETUDIANT.SYS_C0024680;
+
 
 CREATE TABLE SERVEURS (
     num_serveur number,
