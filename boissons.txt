@@ -20,7 +20,7 @@
 20, chateauneuf du pape rouge, vin, L, 55, 15, 12
 21, chateau des rochers rouge, vin, L, 82, 15, 16
 22, chateau de Valcombe rouge, vin, L, 22, 15, 7.9
-23, Sonnenta rose, vin, L, 14.9 15, 5.9
+23, Sonnenta rose, vin, L, 14.9, 15, 5.9
 24, Dom Brial Helios rose, vin, L, 14.9, 15, 5.7
 25, Estandon Heritage rose, vin, L, 16.9, 15, 8.9
 26, Sauvignon blanc, vin, 7.9, L, 15, 4.95
