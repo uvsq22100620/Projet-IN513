@@ -62,7 +62,7 @@ CREATE TABLE INGREDIENTS (
 CREATE TABLE A_BOIRE (
     num_commande number,
     num_boisson number,
-    nb_unites float,
+    nb_unites float CHECK(nb_unites>0.0),
     CONSTRAINT pk_A_boire PRIMARY KEY (num_commande, num_boisson),
     CONSTRAINT fk_A_boire_1 FOREIGN KEY (num_commande) REFERENCES COMMANDES (num_commande),
     CONSTRAINT fk_A_boire_2 FOREIGN KEY (num_boisson) REFERENCES BOISSONS (num_boisson)
@@ -80,6 +80,7 @@ CREATE TABLE COMPOSITION (
 CREATE TABLE EST_COMMANDE (
     num_commande number,
     num_carte number,
+    nb_EPD int CHECK(nb_EPD>0),
     CONSTRAINT pk_est_commande PRIMARY KEY (num_commande, num_carte),
     CONSTRAINT fk_est_commande_1 FOREIGN KEY (num_commande) REFERENCES COMMANDES (num_commande),
     CONSTRAINT fk_est_commande_2 FOREIGN KEY (num_carte) REFERENCES CARTE (num_carte)
@@ -136,13 +137,52 @@ END;
 /
 
 -- Pour chaque commande, le stock des ingrédients nécessaires aux EPD commandés diminue.
--- Si le stock n’est pas suffisant à la préparation, alors le client doit en choisir un autre.
+            -- Si le stock n’est pas suffisant à la préparation, alors le client doit en choisir un autre.
 
-CREATE OR REPLACE trigger assez_igd
+CREATE OR REPLACE trigger maj_stocks
     BEFORE INSERT OR UPDATE ON Est_commande
+DECLARE
+    CURSOR c1 IS (SELECT I.num_igd as constituant, C.nb_EPD as quantite
+                    FROM Ingredients I, Est_Commande EC, Composition C
+                    WHERE EC.num_carte = C.num_carte
+                    AND C.num_igd = I.num_igd
+                    AND EC.num_carte = :new.num_carte);
+    nv_stock number := 0;
+    nv_qte number := 0;
 BEGIN
-END;
+    FOR igd IN c1 LOOP
+        IF inserting THEN
+            nv_stock := (SELECT stock
+                        FROM Ingredients
+                        WHERE num_igd = igd.constituant) - (:new.nb_unites * igd.quantite);
+            UPDATE Ingredients SET stock = nv_stock
+            WHERE num_igd = igd.constituant;
+        END IF;
+        IF updating THEN
+            IF :new.nb_EPD < :old.nb_EPD THEN       -- commande annulée : on rajoute les ingréidents dans les stocks
+                nv_qte := :old.nb_EPD - :new.nb_EPD;
+                nv_stock := (SELECT stock
+                        FROM Ingredients
+                        WHERE num_igd = igd.constituant) + (nv_qte * igd.quantite);
+                UPDATE Ingredients SET stock = nv_stock
+                WHERE num_igd = igd.constituant;
+                EXIT;
+            END IF;
+            IF :new.nb_EPD > :old.nb_EPD THEN       -- ajout d'une commande pour cet EPD
+                nv_qte := :new.nb_EPD - :old.nb_EPD;
+            ELSE                                    -- nb_EPD n'a pas changé 
+                nv_qte := :new.nb_EPD;
+            END IF;
+            nv_stock := (SELECT stock
+                        FROM Ingredients
+                        WHERE num_igd = igd.constituant) - (nv_qte * igd.quantite);
+            UPDATE Ingredients SET stock = nv_stock
+            WHERE num_igd = igd.constituant;
+        END IF;        
+    END;
 /
+
+-- trigger pour rajouter des igd au stock si suppression tuple Est_Commandé ?
 
 CREATE OR REPLACE procedure augmenter_stock (num_ingredient, nb_unites) IS
 BEGIN
