@@ -140,7 +140,7 @@ END;
             -- Si le stock n’est pas suffisant à la préparation, alors le client doit en choisir un autre.
 
 CREATE OR REPLACE trigger maj_stocks
-    BEFORE INSERT OR UPDATE ON Est_commande
+    BEFORE INSERT OR UPDATE OR DELETE ON Est_commande
 DECLARE
     CURSOR c1 IS (SELECT I.num_igd as constituant, C.nb_EPD as quantite
                     FROM Ingredients I, Est_Commande EC, Composition C
@@ -158,9 +158,13 @@ BEGIN
             UPDATE Ingredients SET stock = nv_stock
             WHERE num_igd = igd.constituant;
         END IF;
-        IF updating THEN
-            IF :new.nb_EPD < :old.nb_EPD THEN       -- commande annulée : on rajoute les ingréidents dans les stocks
-                nv_qte := :old.nb_EPD - :new.nb_EPD;
+        IF updating or deleting THEN
+            IF deleting OR (:new.nb_EPD < :old.nb_EPD) THEN      -- commande annulée : on rajoute les ingrédients dans les stocks
+                IF deleting THEN
+                    nv_qte := :old.nb_EPD;
+                ELSE
+                    nv_qte := :old.nb_EPD - :new.nb_EPD;
+                END IF;
                 nv_stock := (SELECT stock
                         FROM Ingredients
                         WHERE num_igd = igd.constituant) + (nv_qte * igd.quantite);
@@ -168,9 +172,9 @@ BEGIN
                 WHERE num_igd = igd.constituant;
                 EXIT;
             END IF;
-            IF :new.nb_EPD > :old.nb_EPD THEN       -- ajout d'une commande pour cet EPD
+            IF :new.nb_EPD > :old.nb_EPD THEN                   -- ajout d'une commande pour cet EPD
                 nv_qte := :new.nb_EPD - :old.nb_EPD;
-            ELSE                                    -- nb_EPD n'a pas changé 
+            ELSE                                                -- nb_EPD n'a pas changé 
                 nv_qte := :new.nb_EPD;
             END IF;
             nv_stock := (SELECT stock
@@ -181,8 +185,6 @@ BEGIN
         END IF;        
     END;
 /
-
--- trigger pour rajouter des igd au stock si suppression tuple Est_Commandé ?
 
 CREATE OR REPLACE procedure augmenter_stock (num_ingredient, nb_unites) IS
 BEGIN
