@@ -307,13 +307,37 @@ WHERE num_serveur NOT IN (SELECT num_serveur
                             WHERE S.num_serveur = C.num_serveur
                             AND WEEK(C.date_commande) = WEEK (06-11-2023) and YEAR(C.date_commande) = YEAR(06-11-2023));
 
--- Quels sont les EPD qui contiennent du lait ou des œufs ou poisson ou noix ?
+-- Quels sont les EPD qui contiennent des œufs, du gluten, du lactose, des fruits à coque, du poisson, des fruits de mer ou de céleri ?
 
-SELECT nom_carte, nom_igd
+SELECT nom_carte as plat, nom_igd as ingredient
 FROM Carte C, Ingredients I, Composition Co
 WHERE Co.num_carte = C.num_carte
 AND Co.num_igd = I.num_igd
-AND I.nom_igd IN ('lait', 'oeuf'); -- ...
+AND I.nom_igd IN ('oeuf', 'celeri')
+UNION
+SELECT distinct(nom_carte) as plat, 'gluten' as ingredient
+FROM Carte C, Ingredients I, Composition Co
+WHERE Co.num_carte = C.num_carte
+AND Co.num_igd = I.num_igd
+AND I.nom_igd IN ('farine', 'levure', 'pain', 'pate lasagne', 'biscuit cuillere', 'speculoos', 'glace chocolat', 'poudre cacao')
+UNION
+SELECT distinct(nom_carte) as plat, 'lactose' as ingredient
+FROM Carte C, Ingredients I, Composition Co
+WHERE Co.num_carte = C.num_carte
+AND Co.num_igd = I.num_igd
+AND I.nom_igd IN ('lait', 'beurre', 'creme', 'chevre', 'mozzarella', 'emmental', 'mascarpone', 'parmesan', 'feta')
+UNION
+SELECT distinct(nom_carte) as plat, 'fruits à coque' as ingredient
+FROM Carte C, Ingredients I, Composition Co
+WHERE Co.num_carte = C.num_carte
+AND Co.num_igd = I.num_igd
+AND I.nom_igd IN ('noix', 'speculoos', 'biscuit cuillere', 'glace chocolat')
+UNION
+SELECT distinct(nom_carte) as plat, 'poisson/fruit de mer' as ingredient
+FROM Carte C, Ingredients I, Composition Co
+WHERE Co.num_carte = C.num_carte
+AND Co.num_igd = I.num_igd
+AND I.nom_igd IN ('raie', 'saumon fume', 'sole', 'st pierre', 'thon rouge', 'poulpe', 'couteau', 'crevette', 'st jacques', 'langoustine');
 
 -- En août 2023, combien d’argent les boissons ont-elles générées ? Quel était le prix total de l’achat de ces boissons aux fournisseurs ?
 

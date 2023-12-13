@@ -26,7 +26,7 @@
 26, 'poulpe', 'kg', 40.8, 5
 27, 'couteau', 'kg', 13.5, 4
 28, 'crevette', 'kg', 9, 4
-29, 'saint jacques', 'kg', 15.5, 4
+29, 'st jacques', 'kg', 15.5, 4
 30, 'langoustine', 'kg', 30, 4
 31, 'chevre', 'kg', 14, 7
 32, 'mozzarella', 'kg', 10, 10
@@ -56,7 +56,7 @@
 56, 'artichaut', 'kg', 6, 1
 57, 'celeri', 'kg', 2.5, 1
 58, 'poireau', 'kg', 3, 2
-59, truffe noire', 'kg', 200, 18
+59, 'truffe noire', 'kg', 200, 18
 60, 'cepe', 'kg', '50, 18
 61, 'morille', 'kg', 45, 18
 62, 'noix', 'kg', 4.5, 1
