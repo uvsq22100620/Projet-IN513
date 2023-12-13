@@ -25,7 +25,7 @@ CREATE TABLE BOISSONS (
     prix_boisson_achat float CHECK(prix_boisson_achat>0.0),
     num_fournisseur number,
     CONSTRAINT pk_boissons PRIMARY KEY (num_boisson),
-    CONSTRAINT fk_boissons FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur)
+    CONSTRAINT fk_boissons_fournisseurs FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur)
 );
 
 
@@ -45,7 +45,7 @@ CREATE TABLE COMMANDES (
     num_table number CHECK(num_table BETWEEN 1 AND 15),
     num_serveur number,
     CONSTRAINT pk_commandes PRIMARY KEY (num_commande),
-    CONSTRAINT fk_commandes FOREIGN KEY (num_serveur) REFERENCES SERVEURS (num_serveur)
+    CONSTRAINT fk_commandes_serveurs FOREIGN KEY (num_serveur) REFERENCES SERVEURS (num_serveur)
 );
 
 CREATE TABLE INGREDIENTS (
@@ -56,16 +56,16 @@ CREATE TABLE INGREDIENTS (
     stock number CHECK(stock>=0),
     num_fournisseur number,
     CONSTRAINT pk_igd PRIMARY KEY (num_igd),
-    CONSTRAINT fk_igd FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur)
+    CONSTRAINT fk_igd_fournisseurs FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur)
 );
 
 CREATE TABLE A_BOIRE (
     num_commande number,
     num_boisson number,
     nb_unites float CHECK(nb_unites>0.0),
-    CONSTRAINT pk_A_boire PRIMARY KEY (num_commande, num_boisson),
-    CONSTRAINT fk_A_boire_1 FOREIGN KEY (num_commande) REFERENCES COMMANDES (num_commande),
-    CONSTRAINT fk_A_boire_2 FOREIGN KEY (num_boisson) REFERENCES BOISSONS (num_boisson)
+    CONSTRAINT pk_a_boire PRIMARY KEY (num_commande, num_boisson),
+    CONSTRAINT fk_a_boire_commandes FOREIGN KEY (num_commande) REFERENCES COMMANDES (num_commande),
+    CONSTRAINT fk_a_boire_boissons FOREIGN KEY (num_boisson) REFERENCES BOISSONS (num_boisson)
 );
 
 CREATE TABLE COMPOSITION (
@@ -73,17 +73,17 @@ CREATE TABLE COMPOSITION (
     num_igd number,
     nb_unites float CHECK(nb_unites>0),
     CONSTRAINT pk_composition PRIMARY KEY (num_carte, num_igd),
-    CONSTRAINT fk_composition_1 FOREIGN KEY (num_carte) REFERENCES CARTE (num_carte),
-    CONSTRAINT fk_composition_2 FOREIGN KEY (num_igd) REFERENCES INGREDIENTS (num_igd)
+    CONSTRAINT fk_composition_carte FOREIGN KEY (num_carte) REFERENCES CARTE (num_carte),
+    CONSTRAINT fk_composition_igd FOREIGN KEY (num_igd) REFERENCES INGREDIENTS (num_igd)
 );
 
 CREATE TABLE EST_COMMANDE (
     num_commande number,
     num_carte number,
-    nb_EPD int CHECK(nb_EPD>0),
+    nb_EPD number CHECK(nb_EPD>0),
     CONSTRAINT pk_est_commande PRIMARY KEY (num_commande, num_carte),
-    CONSTRAINT fk_est_commande_1 FOREIGN KEY (num_commande) REFERENCES COMMANDES (num_commande),
-    CONSTRAINT fk_est_commande_2 FOREIGN KEY (num_carte) REFERENCES CARTE (num_carte)
+    CONSTRAINT fk_est_commande_commandes FOREIGN KEY (num_commande) REFERENCES COMMANDES (num_commande),
+    CONSTRAINT fk_est_commande_carte FOREIGN KEY (num_carte) REFERENCES CARTE (num_carte)
 );
 
 -- Commandes d'insertion des valeurs
@@ -113,13 +113,14 @@ INSERT INTO FOURNISSEURS values (18, 'Laumont', 'Strasbourg', '01 98 02 76 54');
 CREATE OR REPLACE trigger prix_EPD_1
     BEFORE INSERT OR UPDATE ON Carte
 DECLARE
-    cout Number(7,4) := 0;
+    cout number(7,4) := 0;
 BEGIN
     SELECT sum(I.prix_igd*Co.nb_unites) INTO cout
     FROM Ingredients I, Composition Co
     WHERE :new.num_carte = Co.num_carte
-    AND Co.num_igd = I.num_igd
-    IF :new.prix_carte <= cout THEN raise application_error(001, 'Le prix de vente cet EPD est trop faible comparé à son coût de production.')
+    AND Co.num_igd = I.num_igd;
+    IF :new.prix_carte <= cout THEN
+        raise application_error(001, 'Le prix de vente cet EPD est trop faible comparé à son coût de production.');
 END;
 /
 
@@ -127,12 +128,23 @@ CREATE OR REPLACE trigger prix_EPD_2
     BEFORE INSERT OR UPDATE ON Composition
         FOR EACH ROW
 DECLARE
-    cout Number(7,4) := 0;
+    cout number(7,4) := 0;
 BEGIN
     SELECT sum(I.prix_igd*:new.nb_unites) INTO cout
     FROM Ingredients I, Carte C
-    WHERE :new.num_carte = C.num_carte
-    IF cout >= C.prix_carte THEN raise application_error(002, 'Le prix de vente d un EPD est trop faible comparé à son coût de production')
+    WHERE :new.num_carte = C.num_carte;
+    IF cout >= C.prix_carte THEN
+        raise application_error(002, 'Le prix de vente d un EPD est trop faible comparé à son coût de production.');
+END;
+/
+
+-- Le prix de la boisson à l'achat doit être inférieur à celui à la vente
+
+CREATE OR REPLACE trigger prix_boissons
+    BEFORE INSERT OR UPDATE ON Boissons
+BEGIN
+    IF :new.prix_boisson_achat > :new.prix_boisson_vente THEN
+        raise application_error(003, 'Le prix de vente d une boisson doit être supérieur à son prix d achat.')
 END;
 /
 
@@ -186,6 +198,64 @@ BEGIN
     END;
 /
 
+-- Un client ne peut venir manger dans le restaurant que si le nombre maximum de couverts n’a pas été dépassé (200 couverts par service)
+
+CREATE OR REPLACE trigger max_couverts
+    BEFORE INSERT ON Commandes
+DECLARE
+    nb_couverts number(3) := 0;
+BEGIN
+    nb_couverts := (SELECT count(num_commande)
+                    FROM Commandes
+                    WHERE date_commande = :new.date_commande);
+    IF nb_couverts >= 200 THEN
+        raise application_error(101, 'Le nombre maximum de couverts a été atteint, aucune nouvelle commande ne peut être passée.');
+END;
+/
+
+-- Chaque entrée, chaque plat et chaque dessert contient au moins un ingrédient
+
+    -- Il y a une dépendance cyclique car dans la table Composition, num_carte est une clé étrangère de Carte(num_carte)
+    -- donc il faudrait créer les tuples de la table Carte avant de leur associer des ingrédients dans la table Composition.
+    -- Mais la contrainte empêcherait par exemple l'insertion de nouveaux EPD (dans Carte) si ceux-ci ne sont pas déjà dans
+    -- la table Composition, ce qui est donc impossible.
+    -- Pour cela, il faudrait créér les tables avec une des deux contraintes puis la désactiver (DISABLE CONSTRAINT)
+    -- pour créér la deuxième et enfin réactiver la première (ENABLE CONSTRAINT).
+
+ALTER TABLE Composition
+    DISABLE CONSTRAINT fk_composition_carte;
+
+ALTER TABLE Carte
+    ADD CONSTRAINT composition_EPD
+    CHECK (num_carte IN (SELECT num_carte FROM Composition));
+
+ALTER TABLE Composition
+    ENABLE CONSTRAINT fk_composition_carte;
+
+-- Une commande est forcément associée à au moins une boisson ou un EPD commandé.
+
+    -- Il s'agit aussi d'une dépendance cyclique.
+
+ALTER TABLE Est_Commande
+    DISABLE CONSTRAINT fk_est_commande_commandes;
+
+ALTER TABLE A_Boire
+    DISABLE CONSTRAINT fk_a_boire_commandes;
+
+ALTER TABLE Commandes
+    ADD CONSTRAINT commande_eat_or_drink
+    CHECK (num_commande IN (SELECT num_commande FROM Est_Commande UNION
+                            SELECT num_commande FROM A_Boire));
+
+ALTER TABLE Est_Commande
+    ENABLE CONSTRAINT fk_est_commande_commandes;
+
+ALTER TABLE A_Boire
+    ENABLE CONSTRAINT fk_a_boire_commandes;
+
+-- Créer la procédure à exécuter pour augmenter les stocks d'un ingrédient,
+-- lors de la réception des commandes passées aux fournisseurs par exemple.
+
 CREATE OR REPLACE procedure augmenter_stock (num_ingredient, nb_unites) IS
 BEGIN
     UPDATE Ingredients SET stock = stock + nb_unites
@@ -201,7 +271,7 @@ END;
 DECLARE
     CURSOR c1 AS SELECT * FROM A_boire;
     drink_type varchar(15) := '0';
-    nb_tot_bouteilles int := 0;
+    nb_tot_bouteilles number := 0;
 BEGIN
     FOR tuple IN c1 LOOP
         drink_type := SELECT b.type_boisson
