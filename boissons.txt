@@ -29,12 +29,12 @@
 29, la Perriere blanc, vin, L, 19.9, 15, 13.2
 30, Moet et Chandon, champagne, L, 59.9, 16, 29.9
 31, Charles Clement, champagne, L, 39,9, 16, 19.9
-32, biere, NULL, L, 16, 13, 7.9
-33, whisky, NULL, L, 200, 14, 99.99
-34, gin, aperitif, L, 45.8, 14, 24.99
-35, rhum, digestif, L, 197.5, 14, 95.5
-36, limoncello, digestif, L, 150, 14, 75
-37, ouzo, digestif, L, 195, 14, 88.8
-38, sake, digestif, L, 49.9, 14, 25
-39, get 27, digestif, L, 39.9, 13, 14
-40, cognac, digestif, L, 212.5, 14, 104.9
+32, biere les 3 Monts, biere, L, 16, 13, 7.9
+33, whisky, a_fort, L, 200, 14, 99.99
+34, gin, a_fort, L, 45.8, 14, 24.99
+35, rhum, a_fort, L, 197.5, 14, 95.5
+36, limoncello, a_fort, L, 150, 14, 75
+37, ouzo, a_fort, L, 195, 14, 88.8
+38, sake, a_fort, L, 49.9, 14, 25
+39, get 27, a_fort, L, 39.9, 13, 14
+40, cognac, a_fort, L, 212.5, 14, 104.9

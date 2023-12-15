@@ -19,13 +19,14 @@ CREATE TABLE FOURNISSEURS (
 CREATE TABLE BOISSONS (
     num_boisson number,
     nom_boisson varchar(30),
-    type_boisson VARCHAR(20) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'vin', 'champagne', 'aperitif', 'digestif', 'cafe')),
+    type_boisson VARCHAR(20) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'biere', 'vin', 'champagne', 'a_fort', 'cafe')),
     unite varchar(20) CHECK(unite IN ('L', 'canette', 'bouteille', 'kg')),
     prix_boisson_vente float CHECK(prix_boisson_vente>0.0),
     prix_boisson_achat float CHECK(prix_boisson_achat>0.0),
     num_fournisseur number,
     CONSTRAINT pk_boissons PRIMARY KEY (num_boisson),
-    CONSTRAINT fk_boissons_fournisseurs FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur)
+    CONSTRAINT fk_boissons_fournisseurs FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur),
+    CONSTRAINT marge_boissons CHECK(prix_boisson_achat <= prix_boisson_vente)
 );
 
 
@@ -140,13 +141,15 @@ END;
 
 -- Le prix de la boisson à l'achat doit être inférieur à celui à la vente
 
-CREATE OR REPLACE trigger prix_boissons
-    BEFORE INSERT OR UPDATE ON Boissons
-BEGIN
-    IF :new.prix_boisson_achat > :new.prix_boisson_vente THEN
-        raise application_error(003, 'Le prix de vente d une boisson doit être supérieur à son prix d achat.')
-END;
-/
+-- pas trigger normalement, j'ai mis un CHECK dans la création de la table
+
+--CREATE OR REPLACE trigger prix_boissons
+--    BEFORE INSERT OR UPDATE ON Boissons
+--BEGIN
+--    IF :new.prix_boisson_achat > :new.prix_boisson_vente THEN
+--        raise application_error(003, 'Le prix de vente d une boisson doit être supérieur à son prix d achat.')
+--END;
+--/
 
 -- Pour chaque commande, le stock des ingrédients nécessaires aux EPD commandés diminue.
             -- Si le stock n’est pas suffisant à la préparation, alors le client doit en choisir un autre.
@@ -253,6 +256,42 @@ ALTER TABLE Est_Commande
 ALTER TABLE A_Boire
     ENABLE CONSTRAINT fk_a_boire_commandes;
 
+-- Certaines boissons ne sont vendues que pour un volume donné.
+-- Il faut donc vérifier que nb_unites soit un multiple de ce volume.
+
+    -- Le vin est vendu soit au verre (14 cL) soit à la bouteille (75 cL). Le nombre d'unités (en L) doit donc être
+    -- un flottant P tel que P = v * 0.17 + b * 0.75 avec v et b deux entiers <=> (P%0.75)%0.17 doit être égal à 0.
+
+    -- La quantité de bière vendue est de 25cL ou 50cL.
+    -- Les sirops sont vendus par dose de 25cL.
+
+    -- L'eau (plate ou gazeuse) est vendue en petite bouteille (33cL) ou en grande bouteille (75cL).
+
+    -- Dans un café, il y a 8g de grains de café pour un expresso, 16g pour un double-expresso.
+
+    -- Le champagne n'est vendu que par bouteille, soit 75cL.
+
+    -- Un alcool fort (de type a_fort) est vendu par dose de 4cL.
+
+    
+CREATE OR REPLACE trigger unites_boissons
+    BEFORE INSERT OR UPDATE ON A_Boire
+DECLARE
+    t_boisson varchar(10);
+BEGIN
+    SELECT type_boisson INTO t_boisson
+    FROM Boissons
+    WHERE B.num_boisson = :new.num_boisson;
+    IF ((t_boisson = 'vin') AND ((:new.nb_unites%0.75)%0.14 != 0))
+        OR (((t_boisson = 'biere') OR (t_boisson = 'sirop')) AND (:new.nb_unites%0.25 != 0))
+        OR ((t_boisson = 'eau') AND ((:new.nb_unites%0.75)%0.33 != 0))
+        OR ((t_boisson = 'cafe') AND (:new.nb_unites%8 != 0))
+        OR ((t_boisson = 'champagne') AND (:new.nb_unites%0.75 != 0))
+        OR ((t_boisson = 'a_fort') AND (:new.nb_unites%0.04 != 0)) THEN
+            raise application_error(200, 'Le nombre d unites n est pas correct');
+END;
+/
+
 -- Créer la procédure à exécuter pour augmenter les stocks d'un ingrédient,
 -- lors de la réception des commandes passées aux fournisseurs par exemple.
 
@@ -262,6 +301,7 @@ BEGIN
         WHERE num_igd = num_ingredient
 END;
 /
+
 
 -- REQUETES
 
@@ -306,6 +346,17 @@ WHERE num_serveur NOT IN (SELECT num_serveur
                             FROM Serveurs S, Commande C
                             WHERE S.num_serveur = C.num_serveur
                             AND WEEK(C.date_commande) = WEEK (06-11-2023) and YEAR(C.date_commande) = YEAR(06-11-2023));
+
+-- Quels sont les serveurs qui ont travaillé chaque mardi en novembre 2023 ?
+-- <=> les serveurs tel qu'il n'existe pas de mardi de novembre 2023 tel qu'il n'existe pas
+--                                              de commande servie par ce serveur ce jour-là
+
+SELECT S.*
+FROM Serveurs s
+WHERE NOT EXISTS (SELECT *
+                    FROM Commandes)     -- bizarre car 2 tables seulement
+
+-- Trouver autre division
 
 -- Quels sont les EPD qui contiennent des œufs, du gluten, du lactose, des fruits à coque, du poisson, des fruits de mer ou de céleri ?
 
