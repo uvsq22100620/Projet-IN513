@@ -1,40 +1,40 @@
-1, eau plate, eau, L , 3, 17, 0.2
-2, eau gazeuse, eau, L, 3, 17, 0.3
-3, Coca Cola, soda, canette, 3.50, 13, 0.4
-4, Coca Cola Zero, soda, canette, 3.50, 13, 0.4
-5, Fanta, soda, canette, 3.50, 13, 0.4
-6, Ice Tea, soda, canette, 3.50, 13, 0.4
-7, Oasis, soda, canette, 3.50, 13, 0.4
-8, sirop grenadine, sirop, L, 116, 13, 0.4
-9, sirop menthe, sirop, L, 116, 13, 0.4
-10, limonade, soda, bouteille, 3.4, 13, 0.4
-11, expresso, cafe, kg, 312.5, 11, 39.9
-12, double expresso, cafe, kg, 312.5, 11, 39.9
-13, jus orange, jus, bouteille, 3.2, 2, 0.7
-14, jus pomme, jus, bouteille, 3.2, 2, 0.7
-15, jus ananas, jus, bouteille, 3.9, 12, 0.8
-16, jus abricot, jus, bouteille, 3.8, 1, 0.8
-17, jus framboise, jus, bouteille, 4.1, 1, 0.9
-18, chateau Pierron rouge, vin, L, 39.9, 15, 5.8
-19, comte des clos rouge, vin, L, 37, 15, 4.1
-20, chateauneuf du pape rouge, vin, L, 55, 15, 12
-21, chateau des rochers rouge, vin, L, 82, 15, 16
-22, chateau de Valcombe rouge, vin, L, 22, 15, 7.9
-23, Sonnenta rose, vin, L, 14.9, 15, 5.9
-24, Dom Brial Helios rose, vin, L, 14.9, 15, 5.7
-25, Estandon Heritage rose, vin, L, 16.9, 15, 8.9
-26, Sauvignon blanc, vin, 7.9, L, 15, 4.95
-27, chateau de Valcombe blanc, vin, L, 11.2, 15, 6.9
-28, Chardonnay blanc, vin, L, 14.1, 15, 9.1
-29, la Perriere blanc, vin, L, 19.9, 15, 13.2
-30, Moet et Chandon, champagne, L, 59.9, 16, 29.9
-31, Charles Clement, champagne, L, 39,9, 16, 19.9
-32, biere les 3 Monts, biere, L, 16, 13, 7.9
-33, whisky, a_fort, L, 200, 14, 99.99
-34, gin, a_fort, L, 45.8, 14, 24.99
-35, rhum, a_fort, L, 197.5, 14, 95.5
-36, limoncello, a_fort, L, 150, 14, 75
-37, ouzo, a_fort, L, 195, 14, 88.8
-38, sake, a_fort, L, 49.9, 14, 25
-39, get 27, a_fort, L, 39.9, 13, 14
-40, cognac, a_fort, L, 212.5, 14, 104.9
+1, 'eau plate', 'eau', 'L' , 3, 17, 0.2
+2, 'eau gazeuse', 'eau', 'L', 3, 17, 0.3
+3, 'Coca Cola', 'soda', 'canette', 3.50, 13, 0.4
+4, 'Coca Cola Zero', 'soda', 'canette', 3.50, 13, 0.4
+5, 'Fanta', 'soda', 'canette', 3.50, 13, 0.4
+6, 'Ice Tea', 'soda', 'canette', 3.50, 13, 0.4
+7, 'Oasis', 'soda', 'canette', 3.50, 13, 0.4
+8, 'sirop grenadine', 'sirop', 'L', 116, 13, 0.4
+9, 'sirop menthe', 'sirop', 'L', 116, 13, 0.4
+10, 'limonade', 'soda', 'bouteille', 3.4, 13, 0.4
+11, 'expresso', 'cafe', 'kg', 312.5, 11, 39.9
+12, 'double expresso', 'cafe', 'kg', 312.5, 11, 39.9
+13, 'jus orange', 'jus', 'bouteille', 3.2, 2, 0.7
+14, 'jus pomme', 'jus', 'bouteille', 3.2, 2, 0.7
+15, 'jus ananas', 'jus', 'bouteille', 3.9, 12, 0.8
+16, 'jus abricot', 'jus', 'bouteille', 3.8, 1, 0.8
+17, 'jus framboise', 'jus', 'bouteille', 4.1, 1, 0.9
+18, 'chateau Pierron rouge', 'vin', 'L', 39.9, 15, 5.8
+19, 'comte des clos rouge', 'vin', 'L', 37, 15, 4.1
+20, 'chateauneuf du pape rouge', 'vin', 'L', 55, 15, 12
+21, 'chateau des rochers rouge', 'vin', 'L', 82, 15, 16
+22, 'chateau de Valcombe rouge', 'vin', 'L', 22, 15, 7.9
+23, 'Sonnenta rose', 'vin', 'L', 14.9, 15, 5.9
+24, 'Dom Brial Helios rose', 'vin', 'L', 14.9, 15, 5.7
+25, 'Estandon Heritage rose', 'vin', 'L', 16.9, 15, 8.9
+26, 'Sauvignon blanc', 'vin', 7.9, 'L', 15, 4.95
+27, 'chateau de Valcombe blanc', 'vin', 'L', 11.2, 15, 6.9
+28, 'Chardonnay blanc', 'vin', 'L', 14.1, 15, 9.1
+29, 'la Perriere blanc', 'vin', 'L', 19.9, 15, 13.2
+30, 'Moet et Chandon', 'champagne', 'L', 59.9, 16, 29.9
+31, 'Charles Clement', 'champagne', 'L', 39.9, 16, 19.9
+32, 'biere les 3 Monts', 'biere', 'L', 16, 13, 7.9
+33, 'whisky', 'a_fort', 'L', 200, 14, 99.99
+34, 'gin', 'a_fort', 'L', 45.8, 14, 24.99
+35, 'rhum', 'a_fort', 'L', 197.5, 14, 95.5
+36, 'limoncello', 'a_fort', 'L', 150, 14, 75
+37, 'ouzo', 'a_fort', 'L', 195, 14, 88.8
+38, 'sake', 'a_fort', 'L', 49.9, 14, 25
+39, 'get 27', 'a_fort', 'L', 39.9, 13, 14
+40, 'cognac', 'a_fort', 'L', 212.5, 14, 104.9
