@@ -12,14 +12,14 @@ CREATE TABLE FOURNISSEURS (
     num_fournisseur number,
     nom_fournisseur varchar(30),
     ville varchar(30),
-    num_tel varchar(10) UNIQUE,
+    num_tel varchar(14) UNIQUE,
     CONSTRAINT pk_fournisseurs PRIMARY KEY (num_fournisseur)
 );
 
 CREATE TABLE BOISSONS (
     num_boisson number,
     nom_boisson varchar(30),
-    type_boisson VARCHAR(20) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'biere', 'vin', 'champagne', 'a_fort', 'cafe')),
+    type_boisson varchar(20) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'biere', 'vin', 'champagne', 'a_fort', 'cafe')),
     unite varchar(20) CHECK(unite IN ('L', 'canette', 'bouteille', 'kg')),
     prix_boisson_vente float CHECK(prix_boisson_vente>0.0),
     prix_boisson_achat float CHECK(prix_boisson_achat>0.0),
@@ -86,6 +86,8 @@ CREATE TABLE EST_COMMANDE (
     CONSTRAINT fk_est_commande_commandes FOREIGN KEY (num_commande) REFERENCES COMMANDES (num_commande),
     CONSTRAINT fk_est_commande_carte FOREIGN KEY (num_carte) REFERENCES CARTE (num_carte)
 );
+
+-- mettre les triggers avant d'inserer les tuples non ?
 
 -- Commandes d'insertion des valeurs
 INSERT INTO FOURNISSEURS values (1, 'Fruity&Co', 'Versailles', '01 23 45 67 89');
