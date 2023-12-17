@@ -242,7 +242,7 @@ def a_boire():
 
     fic_a_boire.close()
 
-a_boire()
+#a_boire()
 
 def composition():   
     fic = open('composition.txt', 'a')
@@ -256,3 +256,12 @@ def composition():
     return
 
 #composition()
+
+def insertInto(name_file, name_table):
+    fic = open(name_file, 'r')
+    for ligne in fic:
+        print('INSERT INTO ', name_table, ' VALUES(', ligne[:-1], ');')
+    fic.close()
+    return
+
+insertInto('ingredients.txt', 'INGREDIENTS')
