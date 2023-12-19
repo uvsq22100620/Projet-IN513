@@ -6,7 +6,7 @@
 6, 'La Ferme Des Limousines', 'Vicq', '06 62 25 82 35'
 7, 'Ferme des Trois Chenes', 'Montfort-l'Amaury', '07 27 49 63 85'
 8, 'Moulin de la Vallee Blanche', 'Maule', '06 73 92 84 56 '
-9, 'Ferme des 'ufs Dores', 'Auffargis', '01 68 43 57 29'
+9, 'Ferme des oeufs Dores', 'Auffargis', '01 68 43 57 29'
 10, 'Laiterie des Champs Fleuries', 'Houdan', '01 37 59 82 64'
 11, 'Chocolaterie Douce Delice', 'Le Vesinet', '07 92 83 46 57'
 12, 'Tropic'Exotica Fruits', 'Les Mureaux', '01 32 54 76 98'
