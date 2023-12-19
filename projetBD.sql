@@ -33,7 +33,7 @@ CREATE TABLE SERVEURS (
     num_serveur number,
     nom_serveur varchar(20),
     prenom_serveur varchar(20),
-    sexe_serveur varchar(1) CHECK(sexe_serveur IN ('F', 'H', NULL)),
+    sexe_serveur varchar(1) CHECK(sexe_serveur IN ('F', 'H')),
     CONSTRAINT pk_serveurs PRIMARY KEY (num_serveur)
 );
 
