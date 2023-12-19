@@ -48,7 +48,7 @@ def dates_par_semaine_debut_mardi_sans_lundi():
 
         while date <= fin_annee:
             if date.strftime("%A") != "Monday":  # Exclure le lundi
-                date_tuple = [date.strftime("%A"), date.strftime("%d"), date.strftime("%B"), date.strftime("%Y")]
+                date_tuple = [date.strftime("%A"), date.strftime("%d"), date.strftime("%m"), date.strftime("%Y")]
                 semaine.append(date_tuple)
 
             if date.strftime("%A") == "Sunday":
@@ -86,9 +86,10 @@ def serveurs_travaillant_sachant_service(jour, annee):
 def transfo_date_python_to_sql(sem):
     for j in sem:
         j_in_english = j[0]
-        j[0] = dico_semaine[j_in_english]
-        m_in_english = j[2]
-        j[2] = dico_mois[m_in_english]
+        j[0] = j_in_english[:3]
+        #j[0] = dico_semaine[j_in_english]
+        #m_in_english = j[2]
+        #j[2] = dico_mois[m_in_english]
     return sem
 
 def commandes_semaine(l_semaine, fic_commandes):
@@ -122,7 +123,7 @@ def commandes_semaine(l_semaine, fic_commandes):
         num_jour = l_semaine[num_service//2][1]
         mois = l_semaine[num_service//2][2]
         annee = l_semaine[num_service//2][3]
-        date_commande = "'" + jour + "-" + num_jour + "-" + mois + "-" + annee + "'"
+        date_commande = "'" + jour + "-" + num_jour  + "-" +  mois + "-"  + annee + "'"
         serveurs_travaillant = serveurs_travaillant_sachant_service(jour, annee)
         for num_client in range(liste_services[num_service]):       # pour chaque commande
             nom_client = random.choices(['NULL'] + liste_noms_clients, proba_clients)[0]
@@ -131,7 +132,7 @@ def commandes_semaine(l_semaine, fic_commandes):
             service = "'" + l_services[num_service%2] + "'"
             num_serveur = random.choices(serveurs_travaillant)[0]
             num_table = random.choices([k for k in range(1,16)], proba_tables)[0]
-            tuple_commande = str(num_commande) + ", " + nom_client + ", " + str(date_commande) + ", " + service + ", " + str(num_serveur) + ", " + str(num_table)
+            tuple_commande = str(num_commande) + ", " + nom_client + ", " + "TO_DATE(" + str(date_commande) + ", 'DY-DD-MM-YYYY')" + ", " + service + ", " + str(num_serveur) + ", " + str(num_table)
             fic_commandes.write(tuple_commande+'\n')
             num_commande += 1
 
@@ -143,7 +144,6 @@ def commandes():
     fic_commandes.close()
 
 #commandes()
-
 # tuples de la table EST_COMMANDE
 
 def est_commande():
@@ -268,4 +268,4 @@ def insertInto(name_file, name_table):
 
 # Attention, penser à laisser une ligne vide à la fin du fichier
 
-insertInto('echantillon.txt', 'COMMANDES')
+insertInto('echantillon.txt', 'EST_COMMANDE')
