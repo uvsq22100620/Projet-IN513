@@ -1,7 +1,7 @@
 -- Projet IN513 - LE CORRE Camille et LEFEVRE Laura
 
 CREATE TABLE CARTE (
-    num_carte number,
+    num_carte number(2),
     nom_carte varchar(53),
     typeEPD varchar(1) CHECK(typeEPD IN ('E', 'P', 'D')),
     prix_carte float CHECK(prix_carte >0 AND prix_carte<100),
@@ -9,26 +9,25 @@ CREATE TABLE CARTE (
 );
 
 CREATE TABLE FOURNISSEURS (
-    num_fournisseur number,
-    nom_fournisseur varchar(30),
-    ville varchar(30),
+    num_fournisseur number(2),
+    nom_fournisseur varchar(28),
+    ville varchar(21),
     num_tel varchar(14) UNIQUE,
     CONSTRAINT pk_fournisseurs PRIMARY KEY (num_fournisseur)
 );
 
 CREATE TABLE BOISSONS (
-    num_boisson number,
+    num_boisson number(2),
     nom_boisson varchar(30),
     type_boisson varchar(20) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'biere', 'vin', 'champagne', 'a_fort', 'cafe')),
     unite varchar(20) CHECK(unite IN ('L', 'canette', 'bouteille', 'kg')),
-    prix_boisson_vente float CHECK(prix_boisson_vente>0.0),
-    num_fournisseur number,
-    prix_boisson_achat float CHECK(prix_boisson_achat>0.0),
+    prix_boisson_vente float CHECK(prix_boisson_vente>0),
+    num_fournisseur number(2),
+    prix_boisson_achat float CHECK(prix_boisson_achat>0),
     CONSTRAINT pk_boissons PRIMARY KEY (num_boisson),
     CONSTRAINT fk_boissons_fournisseurs FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur),
     CONSTRAINT marge_boissons CHECK(prix_boisson_achat <= prix_boisson_vente)
 );
-
 
 CREATE TABLE SERVEURS (
     num_serveur number,

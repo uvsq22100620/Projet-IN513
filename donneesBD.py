@@ -268,4 +268,17 @@ def insertInto(name_file, name_table):
 
 # Attention, penser à laisser une ligne vide à la fin du fichier
 
-insertInto('echantillon.txt', 'EST_COMMANDE')
+#insertInto('echantillon.txt', 'EST_COMMANDE')
+
+def ajoutvirgule():
+    fic = open('commandes2.txt', 'w')
+    fic2 = open('commandes.txt', 'r')
+
+    l = fic2.readlines()
+    for k in l :
+        fic.write(k[:-1]+','+'\n')
+
+    fic.close()
+    fic2.close()
+
+ajoutvirgule()
