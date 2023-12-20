@@ -271,8 +271,8 @@ def insertInto(name_file, name_table):
 #insertInto('echantillon.txt', 'EST_COMMANDE')
 
 def ajoutvirgule():
-    fic = open('commandes2.txt', 'w')
-    fic2 = open('commandes.txt', 'r')
+    fic = open('est_commande2.txt', 'w')
+    fic2 = open('est_commande.txt', 'r')
 
     l = fic2.readlines()
     for k in l :
@@ -281,4 +281,23 @@ def ajoutvirgule():
     fic.close()
     fic2.close()
 
-ajoutvirgule()
+#ajoutvirgule()
+
+def supr_doublon():
+    fic = open('est_commande2.txt', 'r')
+    fic2 = open('est_commande3.txt', 'w')
+
+    l  = fic.readlines()
+    n = len(l)
+    cpt=1
+    fic2.write(l[0])
+    print(n)
+    for i in range(1, n):
+        if l[i] != l[i-1]:
+            fic2.write(l[i])
+            cpt+=1
+    print(cpt)
+    fic.close()
+    fic2.close()
+
+supr_doublon()

@@ -18,21 +18,12 @@ CREATE TABLE FOURNISSEURS (
 
 CREATE TABLE BOISSONS (
     num_boisson number(2),
-<<<<<<< HEAD
-    nom_boisson varchar(30),
-    type_boisson varchar(20) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'biere', 'vin', 'champagne', 'a_fort', 'cafe')),
-    unite varchar(20) CHECK(unite IN ('L', 'canette', 'bouteille', 'kg')),
-    prix_boisson_vente float CHECK(prix_boisson_vente>0),
-    num_fournisseur number(2),
-    prix_boisson_achat float CHECK(prix_boisson_achat>0),
-=======
     nom_boisson varchar(25),
     type_boisson varchar(9) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'biere', 'vin', 'champagne', 'a_fort', 'cafe')),
     unite varchar(9) CHECK(unite IN ('L', 'canette', 'bouteille', 'kg')),
     prix_boisson_vente float CHECK(prix_boisson_vente>0.0),
     num_fournisseur number(2),
     prix_boisson_achat float CHECK(prix_boisson_achat>0.0),
->>>>>>> 486b9922a7c49fbe29f1544417b7117f0961c3c5
     CONSTRAINT pk_boissons PRIMARY KEY (num_boisson),
     CONSTRAINT fk_boissons_fournisseurs FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur),
     CONSTRAINT marge_boissons CHECK(prix_boisson_achat <= prix_boisson_vente)
@@ -63,7 +54,7 @@ CREATE TABLE INGREDIENTS (
     unite varchar(2),
     prix_igd float CHECK(prix_igd>0),
     stock number CHECK(stock>=0),
-    num_fournisseur number,
+    num_fournisseur number(2),
     CONSTRAINT pk_igd PRIMARY KEY (num_igd),
     CONSTRAINT fk_igd_fournisseurs FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur)
 );
