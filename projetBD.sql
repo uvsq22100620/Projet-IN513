@@ -1,7 +1,7 @@
 -- Projet IN513 - LE CORRE Camille et LEFEVRE Laura
 
 CREATE TABLE CARTE (
-    num_carte number,
+    num_carte number(2),
     nom_carte varchar(53),
     typeEPD varchar(1) CHECK(typeEPD IN ('E', 'P', 'D')),
     prix_carte float CHECK(prix_carte >0 AND prix_carte<100),
@@ -9,20 +9,20 @@ CREATE TABLE CARTE (
 );
 
 CREATE TABLE FOURNISSEURS (
-    num_fournisseur number,
-    nom_fournisseur varchar(30),
-    ville varchar(30),
+    num_fournisseur number(2),
+    nom_fournisseur varchar(28),
+    ville varchar(21),
     num_tel varchar(14) UNIQUE,
     CONSTRAINT pk_fournisseurs PRIMARY KEY (num_fournisseur)
 );
 
 CREATE TABLE BOISSONS (
-    num_boisson number,
-    nom_boisson varchar(30),
-    type_boisson varchar(20) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'biere', 'vin', 'champagne', 'a_fort', 'cafe')),
-    unite varchar(20) CHECK(unite IN ('L', 'canette', 'bouteille', 'kg')),
+    num_boisson number(2),
+    nom_boisson varchar(25),
+    type_boisson varchar(9) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'biere', 'vin', 'champagne', 'a_fort', 'cafe')),
+    unite varchar(9) CHECK(unite IN ('L', 'canette', 'bouteille', 'kg')),
     prix_boisson_vente float CHECK(prix_boisson_vente>0.0),
-    num_fournisseur number,
+    num_fournisseur number(2),
     prix_boisson_achat float CHECK(prix_boisson_achat>0.0),
     CONSTRAINT pk_boissons PRIMARY KEY (num_boisson),
     CONSTRAINT fk_boissons_fournisseurs FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur),
@@ -31,16 +31,16 @@ CREATE TABLE BOISSONS (
 
 
 CREATE TABLE SERVEURS (
-    num_serveur number,
-    nom_serveur varchar(20),
-    prenom_serveur varchar(20),
+    num_serveur number(2),
+    nom_serveur varchar(10),
+    prenom_serveur varchar(10),
     sexe_serveur varchar(1) CHECK(sexe_serveur IN ('F', 'H')),
     CONSTRAINT pk_serveurs PRIMARY KEY (num_serveur)
 );
 
 CREATE TABLE COMMANDES (
-    num_commande number,
-    nom_client varchar(30),
+    num_commande number(10),
+    nom_client varchar(20),
     date_commande date,
     service varchar(1) CHECK(service IN ('M', 'S')),
     num_serveur number,
@@ -50,9 +50,9 @@ CREATE TABLE COMMANDES (
 );
 
 CREATE TABLE INGREDIENTS (
-    num_igd number,
+    num_igd number(2),
     nom_igd varchar(20),
-    unite varchar(20),
+    unite varchar(2),
     prix_igd float CHECK(prix_igd>0),
     stock number CHECK(stock>=0),
     num_fournisseur number,
@@ -61,8 +61,8 @@ CREATE TABLE INGREDIENTS (
 );
 
 CREATE TABLE A_BOIRE (
-    num_commande number,
-    num_boisson number,
+    num_commande number(10),
+    num_boisson number(2),
     nb_unites float CHECK(nb_unites>0.0),
     CONSTRAINT pk_a_boire PRIMARY KEY (num_commande, num_boisson),
     CONSTRAINT fk_a_boire_commandes FOREIGN KEY (num_commande) REFERENCES COMMANDES (num_commande),
@@ -70,8 +70,8 @@ CREATE TABLE A_BOIRE (
 );
 
 CREATE TABLE COMPOSITION (
-    num_carte number,
-    num_igd number,
+    num_carte number(2),
+    num_igd number(2),
     nb_unites float CHECK(nb_unites>0),
     CONSTRAINT pk_composition PRIMARY KEY (num_carte, num_igd),
     CONSTRAINT fk_composition_carte FOREIGN KEY (num_carte) REFERENCES CARTE (num_carte),
@@ -79,8 +79,8 @@ CREATE TABLE COMPOSITION (
 );
 
 CREATE TABLE EST_COMMANDE (
-    num_commande number,
-    num_carte number,
+    num_commande number(10),
+    num_carte number(2),
     nb_EPD number CHECK(nb_EPD>0),
     CONSTRAINT pk_est_commande PRIMARY KEY (num_commande, num_carte),
     CONSTRAINT fk_est_commande_commandes FOREIGN KEY (num_commande) REFERENCES COMMANDES (num_commande),
