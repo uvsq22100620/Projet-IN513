@@ -18,28 +18,37 @@ CREATE TABLE FOURNISSEURS (
 
 CREATE TABLE BOISSONS (
     num_boisson number(2),
+<<<<<<< HEAD
     nom_boisson varchar(30),
     type_boisson varchar(20) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'biere', 'vin', 'champagne', 'a_fort', 'cafe')),
     unite varchar(20) CHECK(unite IN ('L', 'canette', 'bouteille', 'kg')),
     prix_boisson_vente float CHECK(prix_boisson_vente>0),
     num_fournisseur number(2),
     prix_boisson_achat float CHECK(prix_boisson_achat>0),
+=======
+    nom_boisson varchar(25),
+    type_boisson varchar(9) CHECK(type_boisson IN ('eau', 'soda', 'sirop', 'jus', 'biere', 'vin', 'champagne', 'a_fort', 'cafe')),
+    unite varchar(9) CHECK(unite IN ('L', 'canette', 'bouteille', 'kg')),
+    prix_boisson_vente float CHECK(prix_boisson_vente>0.0),
+    num_fournisseur number(2),
+    prix_boisson_achat float CHECK(prix_boisson_achat>0.0),
+>>>>>>> 486b9922a7c49fbe29f1544417b7117f0961c3c5
     CONSTRAINT pk_boissons PRIMARY KEY (num_boisson),
     CONSTRAINT fk_boissons_fournisseurs FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur),
     CONSTRAINT marge_boissons CHECK(prix_boisson_achat <= prix_boisson_vente)
 );
 
 CREATE TABLE SERVEURS (
-    num_serveur number,
-    nom_serveur varchar(20),
-    prenom_serveur varchar(20),
+    num_serveur number(2),
+    nom_serveur varchar(10),
+    prenom_serveur varchar(10),
     sexe_serveur varchar(1) CHECK(sexe_serveur IN ('F', 'H')),
     CONSTRAINT pk_serveurs PRIMARY KEY (num_serveur)
 );
 
 CREATE TABLE COMMANDES (
-    num_commande number,
-    nom_client varchar(30),
+    num_commande number(10),
+    nom_client varchar(20),
     date_commande date,
     service varchar(1) CHECK(service IN ('M', 'S')),
     num_serveur number,
@@ -49,9 +58,9 @@ CREATE TABLE COMMANDES (
 );
 
 CREATE TABLE INGREDIENTS (
-    num_igd number,
+    num_igd number(2),
     nom_igd varchar(20),
-    unite varchar(20),
+    unite varchar(2),
     prix_igd float CHECK(prix_igd>0),
     stock number CHECK(stock>=0),
     num_fournisseur number,
@@ -60,8 +69,8 @@ CREATE TABLE INGREDIENTS (
 );
 
 CREATE TABLE A_BOIRE (
-    num_commande number,
-    num_boisson number,
+    num_commande number(10),
+    num_boisson number(2),
     nb_unites float CHECK(nb_unites>0.0),
     CONSTRAINT pk_a_boire PRIMARY KEY (num_commande, num_boisson),
     CONSTRAINT fk_a_boire_commandes FOREIGN KEY (num_commande) REFERENCES COMMANDES (num_commande),
@@ -69,8 +78,8 @@ CREATE TABLE A_BOIRE (
 );
 
 CREATE TABLE COMPOSITION (
-    num_carte number,
-    num_igd number,
+    num_carte number(2),
+    num_igd number(2),
     nb_unites float CHECK(nb_unites>0),
     CONSTRAINT pk_composition PRIMARY KEY (num_carte, num_igd),
     CONSTRAINT fk_composition_carte FOREIGN KEY (num_carte) REFERENCES CARTE (num_carte),
@@ -78,8 +87,8 @@ CREATE TABLE COMPOSITION (
 );
 
 CREATE TABLE EST_COMMANDE (
-    num_commande number,
-    num_carte number,
+    num_commande number(10),
+    num_carte number(2),
     nb_EPD number CHECK(nb_EPD>0),
     CONSTRAINT pk_est_commande PRIMARY KEY (num_commande, num_carte),
     CONSTRAINT fk_est_commande_commandes FOREIGN KEY (num_commande) REFERENCES COMMANDES (num_commande),
@@ -1091,6 +1100,7 @@ WHERE NOT EXISTS (SELECT *
 -- Trouver autre division
 
 -- Quels sont les EPD qui contiennent des œufs, du gluten, du lactose, des fruits à coque, du poisson, des fruits de mer ou de céleri ?
+-- OK
 
 SELECT nom_carte as plat, nom_igd as ingredient
 FROM Carte C, Ingredients I, Composition Co
@@ -1132,12 +1142,14 @@ WHERE A.num_boisson = B.num_boisson
 AND A.num_commande = C.num_commande
 AND C.date_commande = '%-08-2023';
 
--- Retourner les ingrédients dont le stock est inférieur à 10 unités ainsi que leur fournisseur.
+-- Retourner les ingrédients dont le stock est inférieur à 2 kg ou 2 L, ainsi que leur fournisseur.
+-- OK
 
 SELECT I.num_igd, I.nom_igd, F.nom_fournisseur, F.num_tel
 FROM Ingredients I, Fournisseurs F
 WHERE I.num_fournisseur = F.num_fournisseur
-AND I.stock < 10;
+AND (I.stock < 2
+AND ((I.unite = 'kg') OR (I.unite = 'L')));
 
 -- Donner la dépense moyenne d’un client de la semaine du 04/01/2021 en fonction des services du midi et du soir.
 
