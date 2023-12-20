@@ -268,4 +268,4 @@ def insertInto(name_file, name_table):
 
 # Attention, penser à laisser une ligne vide à la fin du fichier
 
-insertInto('echantillon.txt', 'EST_COMMANDE')
+#insertInto('echantillon.txt', 'EST_COMMANDE')

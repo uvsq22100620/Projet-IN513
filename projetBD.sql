@@ -1092,6 +1092,7 @@ WHERE NOT EXISTS (SELECT *
 -- Trouver autre division
 
 -- Quels sont les EPD qui contiennent des œufs, du gluten, du lactose, des fruits à coque, du poisson, des fruits de mer ou de céleri ?
+-- OK
 
 SELECT nom_carte as plat, nom_igd as ingredient
 FROM Carte C, Ingredients I, Composition Co
@@ -1133,12 +1134,14 @@ WHERE A.num_boisson = B.num_boisson
 AND A.num_commande = C.num_commande
 AND C.date_commande = '%-08-2023';
 
--- Retourner les ingrédients dont le stock est inférieur à 10 unités ainsi que leur fournisseur.
+-- Retourner les ingrédients dont le stock est inférieur à 2 kg ou 2 L, ainsi que leur fournisseur.
+-- OK
 
 SELECT I.num_igd, I.nom_igd, F.nom_fournisseur, F.num_tel
 FROM Ingredients I, Fournisseurs F
 WHERE I.num_fournisseur = F.num_fournisseur
-AND I.stock < 10;
+AND (I.stock < 2
+AND ((I.unite = 'kg') OR (I.unite = 'L')));
 
 -- Donner la dépense moyenne d’un client de la semaine du 04/01/2021 en fonction des services du midi et du soir.
 
