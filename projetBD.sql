@@ -29,7 +29,6 @@ CREATE TABLE BOISSONS (
     CONSTRAINT marge_boissons CHECK(prix_boisson_achat <= prix_boisson_vente)
 );
 
-
 CREATE TABLE SERVEURS (
     num_serveur number(2),
     nom_serveur varchar(10),
@@ -55,7 +54,7 @@ CREATE TABLE INGREDIENTS (
     unite varchar(2),
     prix_igd float CHECK(prix_igd>0),
     stock number CHECK(stock>=0),
-    num_fournisseur number,
+    num_fournisseur number(2),
     CONSTRAINT pk_igd PRIMARY KEY (num_igd),
     CONSTRAINT fk_igd_fournisseurs FOREIGN KEY (num_fournisseur) REFERENCES FOURNISSEURS (num_fournisseur)
 );
