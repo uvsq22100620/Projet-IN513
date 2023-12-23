@@ -269,3 +269,35 @@ def insertInto(name_file, name_table):
 # Attention, penser à laisser une ligne vide à la fin du fichier
 
 #insertInto('echantillon.txt', 'EST_COMMANDE')
+
+def ajoutvirgule():
+    fic = open('est_commande2.txt', 'w')
+    fic2 = open('est_commande.txt', 'r')
+
+    l = fic2.readlines()
+    for k in l :
+        fic.write(k[:-1]+','+'\n')
+
+    fic.close()
+    fic2.close()
+
+#ajoutvirgule()
+
+def supr_doublon():
+    fic = open('est_commande2.txt', 'r')
+    fic2 = open('est_commande3.txt', 'w')
+
+    l  = fic.readlines()
+    n = len(l)
+    cpt=1
+    fic2.write(l[0])
+    print(n)
+    for i in range(1, n):
+        if l[i] != l[i-1]:
+            fic2.write(l[i])
+            cpt+=1
+    print(cpt)
+    fic.close()
+    fic2.close()
+
+supr_doublon()
