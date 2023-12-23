@@ -268,7 +268,7 @@ def insertInto(name_file, name_table):
 
 # Attention, penser à laisser une ligne vide à la fin du fichier
 
-#insertInto('echantillon.txt', 'EST_COMMANDE')
+insertInto('echantillon.txt', 'A_BOIRE')
 
 def ajoutvirgule():
     fic = open('est_commande2.txt', 'w')
@@ -284,8 +284,8 @@ def ajoutvirgule():
 #ajoutvirgule()
 
 def supr_doublon():
-    fic = open('est_commande2.txt', 'r')
-    fic2 = open('est_commande3.txt', 'w')
+    fic = open('a_boire.txt', 'r')
+    fic2 = open('a_boire3.txt', 'w')
 
     l  = fic.readlines()
     n = len(l)
@@ -300,4 +300,4 @@ def supr_doublon():
     fic.close()
     fic2.close()
 
-supr_doublon()
+#supr_doublon()

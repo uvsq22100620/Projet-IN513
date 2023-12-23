@@ -28,7 +28,7 @@
 28, 'sole meuniere - riz', 'P', 18.5
 29, 'tiramisu', 'D', 8.5
 30, 'tartelette citron meringuee', 'D', 9
-31, 'pavlova fruits rouges', 'D', 9
+31, 'pavlova fruits rouges', 'D', 10.5
 32, 'mousse au chocolat', 'D', 7.5
 33, 'mi-cuit au chocolat', 'D', 8
 34, 'panna cotta a la mangue', 'D', 8

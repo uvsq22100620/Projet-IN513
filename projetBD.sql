@@ -845,6 +845,7 @@ INSERT INTO  EST_COMMANDE  VALUES( 110, 25, 1 );
 
 CREATE OR REPLACE trigger prix_EPD_1
     BEFORE INSERT OR UPDATE ON Carte
+    FOR EACH ROW
 DECLARE
     cout number(7,4) := 0;
 BEGIN
@@ -854,12 +855,13 @@ BEGIN
     AND Co.num_igd = I.num_igd;
     IF :new.prix_carte <= cout THEN
         raise application_error(001, 'Le prix de vente cet EPD est trop faible comparé à son coût de production.');
+    END IF;
 END;
 /
 
 CREATE OR REPLACE trigger prix_EPD_2
     BEFORE INSERT OR UPDATE ON Composition
-        FOR EACH ROW
+    FOR EACH ROW
 DECLARE
     cout number(7,4) := 0;
 BEGIN
@@ -868,6 +870,7 @@ BEGIN
     WHERE :new.num_carte = C.num_carte;
     IF cout >= C.prix_carte THEN
         raise application_error(002, 'Le prix de vente d un EPD est trop faible comparé à son coût de production.');
+    END IF;
 END;
 /
 
@@ -1163,3 +1166,38 @@ FROM (SELECT sum(Ca.prix_carte)+sum(B.prix_boisson_vente) as depenses
         AND WEEK(Co.date_commande) = WEEK(04-01-2021) and YEAR(Co.date_commande) = YEAR(04-01-2021)) depenses_soir;
 
 
+-- Quel est le cout de production de chaque EPD ?
+-- OK
+
+SELECT C.num_carte, C.nom_carte, SUM(I.prix_igd * Co.nb_unites) AS cout_production
+FROM Carte C, Composition Co, Ingredients I
+WHERE C.num_carte = Co.num_carte
+AND Co.num_igd = I.num_igd
+GROUP BY C.num_carte, C.nom_carte;
+
+-- Créer la vue vue_marge_carte contenant la marge de chaque EPD.
+-- OK
+
+CREATE OR REPLACE VIEW vue_marge_carte AS
+SELECT C.num_carte, C.nom_carte, (C.prix_carte - SUM(I.prix_igd * Co.nb_unites)) AS marge
+FROM Carte C, Composition Co, Ingredients I
+WHERE C.num_carte = Co.num_carte
+AND Co.num_igd = I.num_igd
+GROUP BY C.num_carte, C.nom_carte, C.prix_carte;
+
+-- Quelle est la moyenne de la marge, la marge minimale et la marge maximale des entrées ? des plats ? des desserts ?
+-- OK
+
+SELECT C.typeEPD, ROUND(AVG(VMC.marge), 3) as moyenne_marge, MIN(VMC.marge) as min_marge, MAX(VMC.marge) as max_marge
+FROM vue_marge_carte VMC, Carte C
+WHERE VMC.num_carte = C.num_carte
+GROUP BY C.typeEPD;
+
+-- Pour chaque serveur, combien de clients ont-ils servis le 18 novembre 2023 pendant le service du soir ?
+
+SELECT S.num_serveur, count(*)
+FROM Serveurs S, Commandes C
+WHERE S.num_serveur = C.num_serveur (+)
+AND TO_DATE(C.date, 'DD-MM-YYYY') = TO_DATE('18-11-2023', 'DD-MM-YYYY')
+AND C.service = 'S';
+/
