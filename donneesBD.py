@@ -63,7 +63,7 @@ def dates_par_semaine_debut_mardi_sans_lundi():
 liste_annee = dates_par_semaine_debut_mardi_sans_lundi()
 
 def serveurs_travaillant_sachant_service(jour, annee):
-    """ Retourne la liste des serveurs travaillant le jour et l'annnée correspondante"""
+    ''' Retourne la liste des serveurs travaillant le jour et l'annnée correspondante'''
     if (jour=='Ven') or (jour=='Sam') or (jour=='Dim'):
         nb_serveurs = random.choices([2, 3, 4], [0.25, 0.7, 0.05])[0]
     else:
@@ -183,8 +183,8 @@ def a_boire():
     # E = eau
     # S = sans alcool
     # V = vin
-    # D = digestif
     # C = cafe
+    # A = alcool
     l_choix = ['']
     with open('commandes.txt', 'r') as fic_commandes:
         lignes = fic_commandes.readlines()
@@ -268,4 +268,4 @@ def insertInto(name_file, name_table):
 
 # Attention, penser à laisser une ligne vide à la fin du fichier
 
-#insertInto('echantillon.txt', 'EST_COMMANDE')
+insertInto('echantillon.txt', 'A_BOIRE')
