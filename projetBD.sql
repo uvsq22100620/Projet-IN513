@@ -1077,11 +1077,12 @@ AND prix_carte <= 10;
 
 SELECT num_serveur
 FROM Serveurs
-WHERE num_serveur NOT IN (SELECT num_serveur
-                            FROM Serveurs S, Commande C
-                            WHERE S.num_serveur = C.num_serveur
-                            AND WEEK(C.date_commande) = WEEK (06-11-2023) and YEAR(C.date_commande) = YEAR(06-11-2023));
-
+WHERE num_serveur NOT IN (SELECT S.num_serveur
+                            FROM Serveurs S, Commandes C
+                            WHERE S.num_serveur = C.num_serveur)
+							AND TO_CHAR(C.date_commande, 'IW') = TO_CHAR(TO_DATE('Tue-05-01-2021', 'DY-DD-MM-YYYY'), 'IW');
+    						--AND YEAR(C.date_commande) = YEAR(TO_DATE('Tue-05-01-2021', 'DY-DD-MM-YYYY')));
+                            
 -- Quels sont les serveurs qui ont travaillé chaque mardi en novembre 2023 ?
 -- <=> les serveurs tel qu'il n'existe pas de mardi de novembre 2023 tel qu'il n'existe pas
 --                                              de commande servie par ce serveur ce jour-là
@@ -1193,11 +1194,13 @@ FROM vue_marge_carte VMC, Carte C
 WHERE VMC.num_carte = C.num_carte
 GROUP BY C.typeEPD;
 
--- Pour chaque serveur, combien de clients ont-ils servis le 18 novembre 2023 pendant le service du soir ?
+-- Pour chaque serveur, combien de clients ont-ils servis le samedi 18 novembre 2023 pendant le service du soir ?
+-- OK
 
-SELECT S.num_serveur, count(*)
-FROM Serveurs S, Commandes C
-WHERE S.num_serveur = C.num_serveur (+)
-AND TO_DATE(C.date, 'DD-MM-YYYY') = TO_DATE('18-11-2023', 'DD-MM-YYYY')
-AND C.service = 'S';
+SELECT S.num_serveur, COUNT(C.num_commande) AS nb_commandes_servies
+FROM Serveurs S
+LEFT JOIN Commandes C ON S.num_serveur = C.num_serveur
+    AND C.service = 'S'
+    AND C.date_commande = TO_DATE('Sat-18-11-20231', 'DY-DD-MM-YYYY')
+GROUP BY S.num_serveur;
 /
