@@ -1319,7 +1319,7 @@ END;
 -- Quels sont les noms des clients qui ont réservé une table le vendredi 21 avril 2023 ?
 
 SELECT nom_client
-FROM Client
+FROM commandes
 WHERE date_commande = 'Ven-21-Avril-2023'
 AND nom_client IS NOT NULL;
 
