@@ -1401,7 +1401,7 @@ SELECT sum(A.nb_unites*B.prix_boisson_achat) as somme_vente,
 FROM A_boire A, Boissons B, Commandes C
 WHERE A.num_boisson = B.num_boisson
 AND A.num_commande = C.num_commande
-AND C.date_commande = '%-08-2023';
+AND TO_CHAR(C.date_commande) = '%-08-2023';
 
 -- Retourner les ingrédients dont le stock est inférieur à 2 kg ou 2 L, ainsi que leur fournisseur.
 -- OK
