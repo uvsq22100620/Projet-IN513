@@ -1279,6 +1279,7 @@ END;
 -- Combien de bouteilles de vin ont été vendues le samedi 14 octobre 2023 ?
 -- Pour rappel, une bouteille de vin a une contenance de 75 cL et un verre de vin est de contenance 17 cL.
 -- OK
+-- sur rapport
 
 DECLARE
     CURSOR c1 IS SELECT * FROM A_boire;
@@ -1347,6 +1348,7 @@ WHERE NOT EXISTS (SELECT *
 -- <=> les serveurs tel que, quelque soit l'EPD de la carte, il existe une commande de cet EPD servie par ce serveur
 -- <=> les serveurs tel qu'il n'existe pas d'EPD tel qu'il n'existe pas de commande de cet EPD servie par ce serveur
 -- OK
+-- sur rapport
 
 SELECT S.num_serveur, S.nom_serveur, S.prenom_serveur
 FROM Serveurs S
@@ -1395,7 +1397,7 @@ AND I.nom_igd IN ('raie', 'saumon fume', 'sole', 'st pierre', 'thon rouge', 'pou
 
 SELECT sum(A.nb_unites*B.prix_boisson_achat) as somme_vente,
         sum(A.nb_unites*B.prix_boisson_vente) as somme_achat,
-        (somme_achat-somme_vente) as marge
+        ((sum(A.nb_unites*B.prix_boisson_achat))-(sum(A.nb_unites*B.prix_boisson_vente)))  as marge
 FROM A_boire A, Boissons B, Commandes C
 WHERE A.num_boisson = B.num_boisson
 AND A.num_commande = C.num_commande
