@@ -127,8 +127,8 @@ def commandes_semaine(l_semaine, fic_commandes):
         serveurs_travaillant = serveurs_travaillant_sachant_service(jour, annee)
         for num_client in range(liste_services[num_service]):       # pour chaque commande
             nom_client = random.choices(['NULL'] + liste_noms_clients, proba_clients)[0]
-            #if nom_client != 'NULL':
-            nom_client = "'" + nom_client + "'"        
+            if nom_client != 'NULL':
+                nom_client = "'" + nom_client + "'"        
             service = "'" + l_services[num_service%2] + "'"
             num_serveur = random.choices(serveurs_travaillant)[0]
             num_table = random.choices([k for k in range(1,16)], proba_tables)[0]
@@ -268,7 +268,7 @@ def insertInto(name_file, name_table):
 
 # Attention, penser à laisser une ligne vide à la fin du fichier
 
-insertInto('echantillon.txt', 'A_BOIRE')
+insertInto('echantillon.txt', 'CARTE')
 
 def ajoutvirgule():
     fic = open('est_commande2.txt', 'w')
