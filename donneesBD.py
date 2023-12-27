@@ -301,3 +301,10 @@ def supr_doublon():
     fic2.close()
 
 #supr_doublon()
+
+def testDivision():
+    fic = open('test_divison', 'w')
+    for k in range(45):
+        fic.write('1000, ' + str(k) + ', 1' + '\n')
+
+#testDivision()
