@@ -1358,7 +1358,19 @@ WHERE NOT EXISTS (SELECT * FROM Carte C
                                 AND Co.num_commande = EC.num_commande
                                 AND S.num_serveur = Co.num_serveur));
 
--- Trouver autre division
+-- Quels sont boissons qui ont été commandés par tous les clients le mardi 19 décembre 2023 pendant le service du midi ?
+-- <=> les boissons tel que, quelque soit le client (associé à une commande) du mardi 19 décembre 2023 midi, il l'a commandé
+-- <=> les boissons tel que, quelque soit le client du mardi 19 décembre 2023 midi, il existe une commande de cette boisson par ce client
+-- <=> les boissons tel qu'il n'existe pas de client du mardi 19 décembre 2023 midi tel qu'il n'existe pas de commande de cette boissons par ce client 
+
+SELECT B.num_boisson, B.type_boisson
+FROM Boissons B
+WHERE NOT EXISTS (SELECT * FROM Commandes C
+                    WHERE C.date_commande = TO_DATE('Tue-19-12-2023', 'DY-DD-MM-YYYY')
+                    AND C.service = 'M'
+                    AND NOT EXISTS (SELECT * FROM A_Boire AB
+                                    WHERE AB.num_commande = C.num_commande
+                                    AND AB.num_boisson = B.num_boisson));
 
 -- Quels sont les EPD qui contiennent des œufs, du gluten, du lactose, des fruits à coque, du poisson, des fruits de mer ou de céleri ?
 -- OK
@@ -1422,7 +1434,7 @@ FROM (SELECT sum(Ca.prix_carte)+sum(B.prix_boisson_vente) as depenses
         AND Co.num_commande = AB.num_commande
         AND AB.num_boisson = B.num_boisson
         AND Co.service = 'M'
-        AND WEEK(Co.date_commande) = WEEK(04-01-2021) and YEAR(Co.date_commande) = YEAR(04-01-2021))depenses_midi
+        AND TO_CHAR(Co.date_commande, 'IW') = TO_CHAR(TO_DATE('Mon-04-01-2021', 'DY-DD-MM-YYYY'), 'IW'))depenses_midi
     (SELECT sum(Ca.prix_carte)+sum(B.prix_boisson_vente) as depenses
         FROM Commandes Co, Carte Ca, Boissons B, Est_commande EC, A_boire AB
         WHERE Ca.num_carte = EC.num_carte
@@ -1430,7 +1442,7 @@ FROM (SELECT sum(Ca.prix_carte)+sum(B.prix_boisson_vente) as depenses
         AND Co.num_commande = AB.num_commande
         AND AB.num_boisson = B.num_boisson
         AND Co.service = 'S'
-        AND WEEK(Co.date_commande) = WEEK(04-01-2021) and YEAR(Co.date_commande) = YEAR(04-01-2021)) depenses_soir;
+        AND TO_CHAR(Co.date_commande, 'IW') = TO_CHAR(TO_DATE('Mon-04-01-2021', 'DY-DD-MM-YYYY'), 'IW')) depenses_soir;
 
 
 -- Quel est le cout de production de chaque EPD ?
