@@ -1456,16 +1456,19 @@ GROUP BY C.num_carte, C.nom_carte;
 
 -- Créer la vue vue_marge_carte contenant la marge de chaque EPD.
 -- OK
+-- sur rapport
 
 CREATE OR REPLACE VIEW vue_marge_carte AS
 SELECT C.num_carte, C.nom_carte, (C.prix_carte - SUM(I.prix_igd * Co.nb_unites)) AS marge
 FROM Carte C, Composition Co, Ingredients I
 WHERE C.num_carte = Co.num_carte
 AND Co.num_igd = I.num_igd
-GROUP BY C.num_carte, C.nom_carte, C.prix_carte;
+GROUP BY C.num_carte, C.nom_carte, C.prix_carte
+ORDER BY C.num_carte;
 
 -- Quelle est la moyenne de la marge, la marge minimale et la marge maximale des entrées ? des plats ? des desserts ?
 -- OK
+-- sur rapport
 
 SELECT C.typeEPD, ROUND(AVG(VMC.marge), 3) as moyenne_marge, MIN(VMC.marge) as min_marge, MAX(VMC.marge) as max_marge
 FROM vue_marge_carte VMC, Carte C
@@ -1482,3 +1485,40 @@ LEFT JOIN Commandes C ON S.num_serveur = C.num_serveur
     AND C.date_commande = TO_DATE('Sat-18-11-20231', 'DY-DD-MM-YYYY')
 GROUP BY S.num_serveur;
 /
+
+-- Créer la vue vue_marge_boissons contenant la marge de chaque boisson.
+-- sur rapport
+
+CREATE OR REPLACE VIEW vue_marge_boissons AS
+SELECT B.num_boisson, B.nom_boisson, (B.prix_boisson_vente - B.prix_boisson_achat) AS marge
+FROM Boissons B
+ORDER BY B.num_boisson;
+
+
+-- Créer la vue vue_nb_clients_serveurs, stockant le nombre de clients servis par serveurs la veille
+-- sur rapport
+
+CREATE OR REPLACE VIEW vue_nb_clients_servis AS
+SELECT S.num_serveur, COUNT(C.num_commande) AS nb_commandes_servies
+FROM Serveurs S
+LEFT JOIN Commandes C ON S.num_serveur = C.num_serveur
+    AND C.date_commande = TO_DATE('Sat-18-11-2023', 'DY-DD-MM-YYYY')
+GROUP BY S.num_serveur
+ORDER BY S.num_serveur;
+
+-- Stocker dans la vue recette_semaine les jours, le nombre de clients ainsi que l’argent gagné ce jour.
+
+CREATE OR REPLACE VIEW vue_recette_semaine AS
+SELECT C.date_commande, COUNT(C.num_commande) as nb_clients
+FROM Commandes C
+GROUP BY C.date_commande
+ORDER BY C.date_commande;
+INTER
+SELECT C.date_commande, (SUM(EC.nb_EPD*Ca.prix_carte) + SUM(AB.nb_unites*B.prix_boisson_vente)) as recette
+FROM Commandes C, Est_Commande EC, Carte Ca, A_Boire, AB, Boissons B
+WHERE C.num_commande = EC.num_commande
+AND EC.num_carte = Ca.num_carte
+AND C.num_commande = AB.num_commande
+AND AB.num_boisson = B.num_boisson;
+GROUP BY C.date_commande
+ORDER BY C.date_commande;
