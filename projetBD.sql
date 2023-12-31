@@ -1454,17 +1454,7 @@ WHERE C.num_carte = Co.num_carte
 AND Co.num_igd = I.num_igd
 GROUP BY C.num_carte, C.nom_carte;
 
--- Créer la vue vue_marge_carte contenant la marge de chaque EPD.
--- OK
--- sur rapport
-
-CREATE OR REPLACE VIEW vue_marge_carte AS
-SELECT C.num_carte, C.nom_carte, (C.prix_carte - SUM(I.prix_igd * Co.nb_unites)) AS marge
-FROM Carte C, Composition Co, Ingredients I
-WHERE C.num_carte = Co.num_carte
-AND Co.num_igd = I.num_igd
-GROUP BY C.num_carte, C.nom_carte, C.prix_carte
-ORDER BY C.num_carte;
+-- utilsation vue définie après
 
 -- Quelle est la moyenne de la marge, la marge minimale et la marge maximale des entrées ? des plats ? des desserts ?
 -- OK
@@ -1485,6 +1475,21 @@ LEFT JOIN Commandes C ON S.num_serveur = C.num_serveur
     AND C.date_commande = TO_DATE('Sat-18-11-20231', 'DY-DD-MM-YYYY')
 GROUP BY S.num_serveur;
 /
+
+
+-- VUES
+
+-- Créer la vue vue_marge_carte contenant la marge de chaque EPD.
+-- OK
+-- sur rapport
+
+CREATE OR REPLACE VIEW vue_marge_carte AS
+SELECT C.num_carte, C.nom_carte, (C.prix_carte - SUM(I.prix_igd * Co.nb_unites)) AS marge
+FROM Carte C, Composition Co, Ingredients I
+WHERE C.num_carte = Co.num_carte
+AND Co.num_igd = I.num_igd
+GROUP BY C.num_carte, C.nom_carte, C.prix_carte
+ORDER BY C.num_carte;
 
 -- Créer la vue vue_marge_boissons contenant la marge de chaque boisson.
 -- sur rapport
@@ -1522,3 +1527,92 @@ AND C.num_commande = AB.num_commande
 AND AB.num_boisson = B.num_boisson;
 GROUP BY C.date_commande
 ORDER BY C.date_commande;
+
+-- Créer la vue vue_achat_fournisseurs pour y stocker les ingrédients à racheter 
+-- Les ingrédients à racheter sont ceux qui respectent les conditions suivantes :
+        -- s'il s'agit de levure, de câpres, de morilles, de truffes, de café soluble ou de poudre de cacao,
+            -- la quantité doit être supérieure ou égale à 2 kg.
+        -- s'il s'agit de feta, de parmesan, de mozzarella, de mascarpone, de chèvre, d'ail ou de noix, 
+            -- la quantité doit être supérieure ou égale à 3 kg.
+        -- s'il s'agit de farine, de beurre, de lait ou de crème, il en faut au minimum 4 kg ou 4 L.
+        -- s'il s'agit de pain, de poulet, de filet mignon ou de boeuf, il en faut au minimum 7.5 kg.
+        -- s'il s'agit de pommes de terre, il en faut au minimum 18 kg.
+        -- s'il s'agit des oeufs, il en faut au minimum 90.
+        -- pour les autres ingrédients, la quantité doit être supérieure ou égale à 5 kg.
+
+        -- on ne peut pas commander plus de 2 kg de fruits et légumes qui ne sont pas de saison :
+        -- fraises, framboises, myrtilles, cerises, abricots, figues, tomates, courgettes, aubergines, asperges
+
+DECLARE
+    CURSOR c1 IS (SELECT num_igd, nom_igd, stock
+                    FROM Ingredients)
+    qte_a_acheter Number(4,2) := 0;
+BEGIN
+    FOR igd IN c1 LOOP
+        qte_a_acheter := 0;
+        IF (igd.nom_igd IN ('levure', 'capres', 'morille', 'truffe noire', 'cafe soluble', 'poudre cacao'))
+            AND (igd.stock < 2) THEN
+                qte_a_acheter := 2 - igd.stock
+        ELSIF (igd.nom_igd IN ('feta', 'parmesan', 'mozzarella', 'mascarpone', 'chevre', 'ail', 'noix'))
+            AND (igd.stock < 3) THEN
+                qte_a_acheter := 3 - igd.stock
+        ELSIF (igd.nom_igd IN ('farine', 'beurre', 'lait', 'creme'))
+            AND (igd.stock < 4) THEN
+                qte_a_acheter := 4 - igd.stock
+        ELSIF (igd.nom_igd IN ('pain', 'poulet', 'filet mignon', 'boeuf'))
+            AND (igd.stock < 7.5) THEN
+                qte_a_acheter := 7.5 - igd.stock
+        ELSIF (igd.nom_igd = 'pdt')
+            AND (igd.stock < 18) THEN
+                qte_a_acheter := 18 - igd.stock
+        ELSIF (igd.nom_igd = 'oeuf')
+            AND (igd.stock < 90) THEN
+                qte_a_acheter := 90 - igd.stock
+        ELSE
+            IF igd.stock < 5 THEN
+                qte_a_acheter := 5 - igd.stock;
+        END IF;
+        IF igd.nom_igd IN ('fraise', 'framboise', 'myrtille', 'cerise', 'abricot', 'figue', 'tomate', 'courgette', 'aubergine', 'asperge')
+            AND (qte_a_racheter != 0) AND (qte_a_racheter > 2) THEN
+                qte_a_rachter := 2
+        END IF;
+        IF qte_a_acheter > 0 THEN
+        END IF;
+    CREATE OR REPLACE VIEW vue_achat_fournisseurs AS
+    SELECT I.num_igd, I.nom_igd, 
+END;
+
+CREATE OR REPLACE VIEW vue_a_acheter AS
+SELECT
+    I.num_igd, I.nom_igd,
+    CASE
+        WHEN I.nom_igd IN ('levure', 'capres', 'morille', 'truffe noire', 'cafe soluble', 'poudre cacao')
+            AND I.stock < 2
+                THEN 2 - I.stock
+        WHEN I.nom_igd IN ('feta', 'parmesan', 'mozzarella', 'mascarpone', 'chevre', 'ail', 'noix')
+            AND I.stock < 3
+                THEN 3 - I.stock
+        WHEN I.nom_igd IN ('farine', 'beurre', 'lait', 'creme')
+            AND I.stock < 4
+                THEN 4 - I.stock
+        WHEN I.nom_igd IN ('pain', 'poulet', 'filet mignon', 'boeuf')
+            AND I.stock < 7.5
+                THEN 7.5 - I.stock
+        WHEN I.nom_igd = 'pdt' AND I.stock < 18
+                THEN 18 - I.stock
+        WHEN I.nom_igd = 'oeuf' AND I.stock < 90
+                THEN 90 - I.stock
+        ELSE
+            CASE WHEN stock < 5 THEN 5 - stock ELSE 0 END
+    END AS qte_a_acheter,
+    F.nom_fournisseur, F.num_tel, F.ville
+FROM Ingredients I, Fournisseurs F
+WHERE I.num_fournisseur = F.num_fournisseur
+ORDER BY F.nom_fournisseur;
+
+
+
+CREATE OR REPLACE VIEW vue_achats_fournisseurs AS
+SELECT *
+FROM vue_a_acheter
+WHERE qte_a_acheter != 0;
