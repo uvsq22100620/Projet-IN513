@@ -1610,9 +1610,61 @@ FROM Ingredients I, Fournisseurs F
 WHERE I.num_fournisseur = F.num_fournisseur
 ORDER BY F.nom_fournisseur;
 
-
-
 CREATE OR REPLACE VIEW vue_achats_fournisseurs AS
 SELECT *
 FROM vue_a_acheter
 WHERE qte_a_acheter != 0;
+
+CREATE OR REPLACE VIEW vue_compo_pour_serveurs AS
+SELECT I.nom_igd, C.nom_carte, C.typeEPD
+FROM Ingredients I, Carte C, Composition Co
+WHERE I.num_igd = Co.num_igd
+AND Co.num_carte = C.num_carte
+ORDER BY C.num_carte;
+
+CREATE OR REPLACE VIEW vue_nb_commande_EPD AS
+SELECT C.num_carte, C.nom_carte, COUNT(EC.num_carte) as nb_commande
+FROM Carte C LEFT JOIN Est_Commande EC
+			ON EC.num_carte = C.num_carte
+GROUP BY C.num_carte, C.nom_carte;
+
+-- UTILISATEURS
+
+CREATE USER Gerant IDENTIFIED BY "0000";
+GRANT ALL PRIVILEGES ON * TO Gerant;
+
+CREATE USER Responsable_serveur IDENTIFIED BY "1234";
+GRANT ALL PRIVILEGES ON Serveurs TO Responsable_serveur;
+GRANT ALL PRIVILEGES ON Commandes TO Responsable_serveur;
+GRANT ALL PRIVILEGES ON A_Boire TO Responsable_serveur;
+GRANT ALL PRIVILEGES ON Est_Commande TO Responsable_serveur;
+GRANT ALL PRIVILEGES ON Boissons TO Responsable_serveur;
+GRANT SELECT ON Fournisseurs TO Responsable_serveur;
+GRANT SELECT ON Ingredients TO Responsable_serveur;
+GRANT SELECT ON Carte TO Responsable_serveur;
+GRANT SELECT ON vue_recette_semaine TO Responsable_serveur;
+GRANT SELECT ON vue_marge_carte TO Responsable_serveur;
+GRANT SELECT ON vue_marge_boissons TO Responsable_serveur;
+GRANT SELECT ON vue_nb_clients_servis TO Responsable_serveur;
+
+CREATE USER Serveur IDENTIFIED BY "9876";
+GRANT ALL PRIVILEGES ON Commandes TO Serveur;
+GRANT ALL PRIVILEGES ON A_Boire TO Serveur;
+GRANT ALL PRIVILEGES ON Est_Commande TO Serveur;
+GRANT SELECT ON Carte TO Serveur;
+GRANT SELECT ON Boissons TO Serveur;
+GRANT SELECT ON vue_compo_pour_serveurs TO Serveur;
+GRANT SELECT ON vue_nb_clients_servis TO Serveur;
+GRANT SELECT ON vue_marge_carte TO Serveur;
+GRANT SELECT ON vue_marge_boissons TO Serveur;
+
+CREATE USER Cuisinier IDENTIFIED BY "7643";
+GRANT ALL PRIVILEGES ON Carte TO Cuisinier;
+GRANT ALL PRIVILEGES ON Composition TO Cuisinier;
+GRANT SELECT ON Fourisseurs TO Cuisinier;
+GRANT SELECT ON Boissons TO Cuisinier;
+GRANT SELECT ON vue_freq_commande_EPD TO Cuisinier;
+GRANT SELECT ON vue_marge_carte TO Cuisinier;
+GRANT SELECT ON vue_marge_boissons TO Cuisinier;
+GRANT SELECT ON vue_nb_commande_EPD TO Cuisinier;
+
