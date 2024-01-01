@@ -1661,10 +1661,9 @@ GRANT SELECT ON vue_marge_boissons TO Serveur;
 CREATE USER Cuisinier IDENTIFIED BY "7643";
 GRANT ALL PRIVILEGES ON Carte TO Cuisinier;
 GRANT ALL PRIVILEGES ON Composition TO Cuisinier;
-GRANT SELECT ON Fourisseurs TO Cuisinier;
+GRANT SELECT ON Fournisseurs TO Cuisinier;
 GRANT SELECT ON Boissons TO Cuisinier;
-GRANT SELECT ON vue_freq_commande_EPD TO Cuisinier;
+GRANT SELECT ON vue_nb_commande_EPD TO Cuisinier;
 GRANT SELECT ON vue_marge_carte TO Cuisinier;
 GRANT SELECT ON vue_marge_boissons TO Cuisinier;
-GRANT SELECT ON vue_nb_commande_EPD TO Cuisinier;
 
