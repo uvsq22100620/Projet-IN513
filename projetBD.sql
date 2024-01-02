@@ -1296,10 +1296,11 @@ INSERT INTO a_boire VALUES (1, 20, 0.88);
 -- Créer la procédure à exécuter pour augmenter les stocks d'un ingrédient,
 -- lors de la réception des commandes passées aux fournisseurs par exemple.
 
-CREATE OR REPLACE procedure augmenter_stock (num_ingredient, nb_unites) IS
+CREATE OR REPLACE PROCEDURE augmenter_stock(num_ingredient IN NUMBER, nb_unites IN NUMBER)
+IS
 BEGIN
     UPDATE Ingredients SET stock = stock + nb_unites
-        WHERE num_igd = num_ingredient
+    WHERE num_igd = num_ingredient;
 END;
 /
 
@@ -1354,24 +1355,15 @@ FROM CARTE
 WHERE typeEPD = 'D'
 AND prix_carte <= 8;
 
--- Quels sont les serveurs qui n'ont pas travaillé la semaine du 06/11/2023 ?
+-- Quels sont les serveurs qui n'ont pas travaillé le 7 novembre 2023 ?
+-- sur rapport
 
 SELECT num_serveur
 FROM Serveurs
 WHERE num_serveur NOT IN (SELECT S.num_serveur
                             FROM Serveurs S, Commandes C
                             WHERE S.num_serveur = C.num_serveur)
-							AND TO_CHAR(C.date_commande, 'IW') = TO_CHAR(TO_DATE('Tue-05-01-2021', 'DY-DD-MM-YYYY'), 'IW');
-    						--AND YEAR(C.date_commande) = YEAR(TO_DATE('Tue-05-01-2021', 'DY-DD-MM-YYYY')));
-                            
--- Quels sont les serveurs qui ont travaillé chaque mardi en novembre 2023 ?
--- <=> les serveurs tel qu'il n'existe pas de mardi de novembre 2023 tel qu'il n'existe pas
---                                              de commande servie par ce serveur ce jour-là
-
-SELECT S.*
-FROM Serveurs s
-WHERE NOT EXISTS (SELECT *
-                    FROM Commandes)     -- bizarre car 2 tables seulement
+							AND C.date_commande = TO_DATE('Tue-07-11-2023', 'DY-DD-MM-YYYY');
 
 -- Quels sont les serveurs qui ont servis tous les plats (tous les EPD) ?
 -- <=> les serveurs tel que, quelque soit l'EPD, ils l'ont déjà servi
@@ -1392,6 +1384,7 @@ WHERE NOT EXISTS (SELECT * FROM Carte C
 -- <=> les boissons tel que, quelque soit le client (associé à une commande) du mardi 19 décembre 2023 midi, il l'a commandé
 -- <=> les boissons tel que, quelque soit le client du mardi 19 décembre 2023 midi, il existe une commande de cette boisson par ce client
 -- <=> les boissons tel qu'il n'existe pas de client du mardi 19 décembre 2023 midi tel qu'il n'existe pas de commande de cette boissons par ce client 
+-- sur rapport
 
 SELECT B.num_boisson, B.type_boisson
 FROM Boissons B
@@ -1404,6 +1397,7 @@ WHERE NOT EXISTS (SELECT * FROM Commandes C
 
 -- Quels sont les EPD qui contiennent des œufs, du gluten, du lactose, des fruits à coque, du poisson, des fruits de mer ou de céleri ?
 -- OK
+-- sur rapport
 
 SELECT nom_carte as plat, nom_igd as ingredient
 FROM Carte C, Ingredients I, Composition Co
@@ -1415,13 +1409,15 @@ SELECT distinct(nom_carte) as plat, 'gluten' as ingredient
 FROM Carte C, Ingredients I, Composition Co
 WHERE Co.num_carte = C.num_carte
 AND Co.num_igd = I.num_igd
-AND I.nom_igd IN ('farine', 'levure', 'pain', 'pate lasagne', 'biscuit cuillere', 'speculoos', 'glace chocolat', 'poudre cacao')
+AND I.nom_igd IN ('farine', 'levure', 'pain', 'pate lasagne', 'biscuit cuillere', 'speculoos', 'glace chocolat',
+                                                                                                'poudre cacao')
 UNION
 SELECT distinct(nom_carte) as plat, 'lactose' as ingredient
 FROM Carte C, Ingredients I, Composition Co
 WHERE Co.num_carte = C.num_carte
 AND Co.num_igd = I.num_igd
-AND I.nom_igd IN ('lait', 'beurre', 'creme', 'chevre', 'mozzarella', 'emmental', 'mascarpone', 'parmesan', 'feta')
+AND I.nom_igd IN ('lait', 'beurre', 'creme', 'chevre', 'mozzarella', 'emmental', 'mascarpone', 'parmesan',
+                                                                                                    'feta')
 UNION
 SELECT distinct(nom_carte) as plat, 'fruits à coque' as ingredient
 FROM Carte C, Ingredients I, Composition Co
@@ -1433,7 +1429,8 @@ SELECT distinct(nom_carte) as plat, 'poisson/fruit de mer' as ingredient
 FROM Carte C, Ingredients I, Composition Co
 WHERE Co.num_carte = C.num_carte
 AND Co.num_igd = I.num_igd
-AND I.nom_igd IN ('raie', 'saumon fume', 'sole', 'st pierre', 'thon rouge', 'poulpe', 'couteau', 'crevette', 'st jacques', 'langoustine');
+AND I.nom_igd IN ('raie', 'saumon fume', 'sole', 'st pierre', 'thon rouge', 'poulpe', 'couteau', 'crevette',
+                                                                                'st jacques', 'langoustine');
 
 -- En août 2023, combien d’argent les boissons ont-elles générées ? Quel était le prix total de l’achat de ces boissons aux fournisseurs ?
 
@@ -1447,6 +1444,7 @@ AND TO_CHAR(C.date_commande) = '%-08-2023';
 
 -- Retourner les ingrédients dont le stock est inférieur à 2 kg ou 2 L, ainsi que leur fournisseur.
 -- OK
+-- sur rapport
 
 SELECT I.num_igd, I.nom_igd, F.nom_fournisseur, F.num_tel
 FROM Ingredients I, Fournisseurs F
@@ -1477,6 +1475,7 @@ FROM (SELECT sum(Ca.prix_carte)+sum(B.prix_boisson_vente) as depenses
 
 -- Quel est le cout de production de chaque EPD ?
 -- OK
+-- sur rapport
 
 SELECT C.num_carte, C.nom_carte, SUM(I.prix_igd * Co.nb_unites) AS cout_production
 FROM Carte C, Composition Co, Ingredients I
@@ -1497,14 +1496,16 @@ GROUP BY C.typeEPD;
 
 -- Pour chaque serveur, combien de clients ont-ils servis le samedi 18 novembre 2023 pendant le service du soir ?
 -- OK
+-- sur rapport
 
 SELECT S.num_serveur, COUNT(C.num_commande) AS nb_commandes_servies
 FROM Serveurs S
 LEFT JOIN Commandes C ON S.num_serveur = C.num_serveur
     AND C.service = 'S'
-    AND C.date_commande = TO_DATE('Sat-18-11-20231', 'DY-DD-MM-YYYY')
-GROUP BY S.num_serveur;
-/
+    AND C.date_commande = TO_DATE('Sat-18-11-2023', 'DY-DD-MM-YYYY')
+GROUP BY S.num_serveur
+ORDER BY S.num_serveur;
+
 
 
 -- VUES
@@ -1691,10 +1692,31 @@ GRANT SELECT ON vue_marge_boissons TO Serveur;
 CREATE USER Cuisinier IDENTIFIED BY "7643";
 GRANT ALL PRIVILEGES ON Carte TO Cuisinier;
 GRANT ALL PRIVILEGES ON Composition TO Cuisinier;
-GRANT SELECT ON Fourisseurs TO Cuisinier;
+GRANT SELECT ON Fournisseurs TO Cuisinier;
 GRANT SELECT ON Boissons TO Cuisinier;
-GRANT SELECT ON vue_freq_commande_EPD TO Cuisinier;
+GRANT SELECT ON vue_nb_commande_EPD TO Cuisinier;
 GRANT SELECT ON vue_marge_carte TO Cuisinier;
 GRANT SELECT ON vue_marge_boissons TO Cuisinier;
-GRANT SELECT ON vue_nb_commande_EPD TO Cuisinier;
 
+-- Méta-données
+
+SELECT table_name, constraint_name, constraint_type, search_condition
+FROM user_constraints
+ORDER BY table_name, constraint_type;
+
+
+SELECT table_name, trigger_name, trigger_type, triggering_event
+FROM user_triggers
+ORDER BY table_name;
+
+
+SELECT DISTINCT DTP.table_name, DTP.grantee AS utilisateur_acces_lecture
+FROM dba_tab_privs DTP
+WHERE DTP.privilege = 'SELECT'
+ORDER BY DTP.table_name, tp.grantee;
+
+
+SELECT utc.table_name AS view_name, utc.column_name, utc.data_type
+FROM user_tab_columns utc
+JOIN user_views uv ON utc.table_name = uv.view_name
+ORDER BY utc.table_name, utc.column_id;
