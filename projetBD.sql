@@ -1251,7 +1251,7 @@ DECLARE
     t_boisson varchar(10);
 BEGIN
     SELECT type_boisson INTO t_boisson
-    FROM Boissons
+    FROM Boissons B
     WHERE B.num_boisson = :new.num_boisson;
     IF ((t_boisson = 'vin') AND ((:new.nb_unites%0.75)%0.14 != 0))
         OR (((t_boisson = 'biere') OR (t_boisson = 'sirop')) AND (:new.nb_unites%0.25 != 0))
@@ -1262,6 +1262,36 @@ BEGIN
             raise application_error(200, 'Le nombre d unites n est pas correct');
 END;
 /
+
+--TRIGGER OK :
+CREATE OR REPLACE TRIGGER unites_boissons
+    BEFORE INSERT OR UPDATE ON A_Boire
+    FOR EACH ROW
+DECLARE
+    t_boisson varchar(10);
+BEGIN
+    SELECT type_boisson INTO t_boisson
+    FROM Boissons
+    WHERE Boissons.num_boisson = :new.num_boisson;
+
+    IF ((t_boisson = 'vin') AND (MOD(:new.nb_unites, 0.75) MOD 0.14 != 0))
+        OR (((t_boisson = 'biere') OR (t_boisson = 'sirop')) AND (MOD(:new.nb_unites, 0.25) != 0))
+        OR ((t_boisson = 'eau') AND (MOD(:new.nb_unites, 0.75) MOD 0.33 != 0))
+        OR ((t_boisson = 'cafe') AND (MOD(:new.nb_unites, 8) != 0))
+        OR ((t_boisson = 'champagne') AND (MOD(:new.nb_unites, 0.75) != 0))
+        OR ((t_boisson = 'a_fort') AND (MOD(:new.nb_unites, 0.04) != 0)) THEN
+        raise_application_error(200, 'Le nombre d unités n est pas correct');
+    END IF;
+END;
+/
+
+-- Exemple d'insertion d'une commande de vin pour tester le trigger :
+-- Cas 1 : insertion validée pour un nombre d'unités de 1.64 correspondant à 2 bouteilles de 75 cL et 1 verre de 14 cL de vin Chateauneuf du Pape Rouge
+INSERT INTO a_boire VALUES (1, 20, 1.64);
+
+-- Cas 2 : echec de l'insertion grâce au trigger pour un nombre d'unités de 0.88 de vin Chateauneuf du Pape Rouge
+INSERT INTO a_boire VALUES (1, 20, 0.88);
+
 
 -- Créer la procédure à exécuter pour augmenter les stocks d'un ingrédient,
 -- lors de la réception des commandes passées aux fournisseurs par exemple.
