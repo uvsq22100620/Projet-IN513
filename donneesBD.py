@@ -308,3 +308,10 @@ def testDivision():
         fic.write('1000, ' + str(k) + ', 1' + '\n')
 
 #testDivision()
+
+def new_commandes():
+    fic = open('new_commandes.txt', 'w')
+    for i in range (148696, 148896):
+        fic.write(str(i) + ', Client1, ' + '02-01-2024, ' + 'M, ' + '1, ' + '5,' + '\n')
+    
+new_commandes()

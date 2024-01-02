@@ -1187,6 +1187,23 @@ BEGIN
 END;
 /
 
+--triger OK :
+CREATE OR REPLACE TRIGGER max_couverts
+    BEFORE INSERT ON Commandes
+    FOR EACH ROW
+DECLARE
+    nb_couverts number(3);
+BEGIN
+    SELECT COUNT(num_commande) INTO nb_couverts
+    FROM Commandes
+    WHERE date_commande = :new.date_commande AND service = :new.service;
+
+    IF nb_couverts >= 200 THEN
+        raise_application_error(-20001, 'Le nombre maximum de couverts a ete atteint, aucune nouvelle commande ne peut etre passee.');
+    END IF;
+END;
+/   
+
 -- Chaque entrée, chaque plat et chaque dessert contient au moins un ingrédient
 
     -- Il y a une dépendance cyclique car dans la table Composition, num_carte est une clé étrangère de Carte(num_carte)
@@ -1280,7 +1297,7 @@ BEGIN
         OR ((t_boisson = 'cafe') AND (MOD(:new.nb_unites, 8) != 0))
         OR ((t_boisson = 'champagne') AND (MOD(:new.nb_unites, 0.75) != 0))
         OR ((t_boisson = 'a_fort') AND (MOD(:new.nb_unites, 0.04) != 0)) THEN
-        raise_application_error(200, 'Le nombre d unités n est pas correct');
+        raise_application_error(-20002, 'Le nombre d unites n est pas correct');
     END IF;
 END;
 /
