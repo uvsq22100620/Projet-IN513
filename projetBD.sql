@@ -1285,7 +1285,7 @@ BEGIN
 END;
 /
 
--- Exemple d'insertion d'une commande de vin pour tester le trigger :
+-- Exemple d'insertion d'une commande de vin pour tester le trigger 'unites_boissons' :
 -- Cas 1 : insertion validée pour un nombre d'unités de 1.64 correspondant à 2 bouteilles de 75 cL et 1 verre de 14 cL de vin Chateauneuf du Pape Rouge
 INSERT INTO a_boire VALUES (1, 20, 1.64);
 
