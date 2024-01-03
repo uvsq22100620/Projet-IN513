@@ -1090,7 +1090,7 @@ BEGIN
     WHERE :new.num_carte = Co.num_carte
     AND Co.num_igd = I.num_igd;
     IF :new.prix_carte <= cout THEN
-        raise application_error(001, 'Le prix de vente cet EPD est trop faible comparé à son coût de production.');
+        raise application_error(-20003, 'Le prix de vente cet EPD est trop faible comparé à son coût de production.');
     END IF;
 END;
 /
@@ -1105,7 +1105,7 @@ BEGIN
     FROM Ingredients I, Carte C
     WHERE :new.num_carte = C.num_carte;
     IF cout >= C.prix_carte THEN
-        raise application_error(002, 'Le prix de vente d un EPD est trop faible comparé à son coût de production.');
+        raise application_error(-20004, 'Le prix de vente d un EPD est trop faible comparé à son coût de production.');
     END IF;
 END;
 /
@@ -1171,6 +1171,47 @@ BEGIN
         END IF;        
     END;
 /
+
+
+CREATE OR REPLACE TRIGGER maj_stocks
+    BEFORE INSERT OR UPDATE OR DELETE ON Est_commande
+    FOR EACH ROW
+DECLARE
+    CURSOR c1 IS
+        SELECT I.num_igd as constituant, C.nb_unites as quantite
+        FROM Ingredients I, Est_Commande EC, Composition C
+        WHERE EC.num_carte = C.num_carte AND C.num_igd = I.num_igd AND EC.num_carte = :new.num_carte;
+    nv_stock NUMBER := 0;
+    nv_qte NUMBER := 0;
+BEGIN
+    FOR igd IN c1 LOOP
+        IF INSERTING THEN
+            nv_stock := (SELECT stock FROM Ingredients WHERE num_igd = igd.constituant) - (:new.nb_EPD * igd.quantite);
+            UPDATE Ingredients SET stock = nv_stock WHERE num_igd = igd.constituant;
+        END IF;
+        IF UPDATING OR DELETING THEN
+            IF DELETING OR (:new.nb_EPD < :old.nb_EPD) THEN
+                IF DELETING THEN
+                    nv_qte := :old.nb_EPD;
+                ELSE
+                    nv_qte := :old.nb_EPD - :new.nb_EPD;
+                END IF;
+                nv_stock := (SELECT stock FROM Ingredients WHERE num_igd = igd.constituant) + (nv_qte * igd.quantite);
+                UPDATE Ingredients SET stock = nv_stock WHERE num_igd = igd.constituant;
+                EXIT;
+            END IF;
+            IF :new.nb_EPD > :old.nb_EPD THEN
+                nv_qte := :new.nb_EPD - :old.nb_EPD;
+            ELSE
+                nv_qte := :new.nb_EPD;
+            END IF;
+            nv_stock := (SELECT stock FROM Ingredients WHERE num_igd = igd.constituant) - (nv_qte * igd.quantite);
+            UPDATE Ingredients SET stock = nv_stock WHERE num_igd = igd.constituant;
+        END IF;
+    END LOOP;
+END;
+/
+
 
 -- Un client ne peut venir manger dans le restaurant que si le nombre maximum de couverts n’a pas été dépassé (200 couverts par service)
 
