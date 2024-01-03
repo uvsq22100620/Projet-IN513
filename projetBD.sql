@@ -1090,7 +1090,7 @@ BEGIN
     WHERE :new.num_carte = Co.num_carte
     AND Co.num_igd = I.num_igd;
     IF :new.prix_carte <= cout THEN
-        raise application_error(001, 'Le prix de vente cet EPD est trop faible comparé à son coût de production.');
+        raise application_error(-20003, 'Le prix de vente cet EPD est trop faible comparé à son coût de production.');
     END IF;
 END;
 /
@@ -1105,7 +1105,7 @@ BEGIN
     FROM Ingredients I, Carte C
     WHERE :new.num_carte = C.num_carte;
     IF cout >= C.prix_carte THEN
-        raise application_error(002, 'Le prix de vente d un EPD est trop faible comparé à son coût de production.');
+        raise application_error(-20004, 'Le prix de vente d un EPD est trop faible comparé à son coût de production.');
     END IF;
 END;
 /
@@ -1172,6 +1172,61 @@ BEGIN
     END;
 /
 
+
+CREATE OR REPLACE TRIGGER maj_stocks
+    BEFORE INSERT OR UPDATE OR DELETE ON Est_commande
+    FOR EACH ROW
+DECLARE
+    CURSOR c1 IS
+        SELECT I.num_igd as constituant, C.nb_unites as quantite
+        FROM Ingredients I, Est_Commande EC, Composition C
+        WHERE EC.num_carte = C.num_carte 
+        AND C.num_igd = I.num_igd 
+        AND EC.num_carte = :new.num_carte;
+    nv_stock NUMBER := 0;
+    nv_qte NUMBER := 0;
+BEGIN
+    FOR igd IN c1 LOOP
+        IF INSERTING THEN
+            nv_stock := (SELECT stock 
+                        FROM Ingredients 
+                        WHERE num_igd = igd.constituant) - (:new.nb_EPD * igd.quantite);
+            
+            UPDATE Ingredients SET stock = nv_stock 
+            WHERE num_igd = igd.constituant;
+        END IF;
+        IF UPDATING OR DELETING THEN
+            IF DELETING OR (:new.nb_EPD < :old.nb_EPD) THEN
+                IF DELETING THEN
+                    nv_qte := :old.nb_EPD;
+                ELSE
+                    nv_qte := :old.nb_EPD - :new.nb_EPD;
+                END IF;
+                nv_stock := (SELECT stock 
+                            FROM Ingredients 
+                            WHERE num_igd = igd.constituant) + (nv_qte * igd.quantite);
+                
+                UPDATE Ingredients SET stock = nv_stock 
+                WHERE num_igd = igd.constituant;
+                EXIT;
+            END IF;
+            IF :new.nb_EPD > :old.nb_EPD THEN
+                nv_qte := :new.nb_EPD - :old.nb_EPD;
+            ELSE
+                nv_qte := :new.nb_EPD;
+            END IF;
+            nv_stock := (SELECT stock 
+                        FROM Ingredients 
+                        WHERE num_igd = igd.constituant) - (nv_qte * igd.quantite);
+            
+            UPDATE Ingredients SET stock = nv_stock 
+            WHERE num_igd = igd.constituant;
+        END IF;
+    END LOOP;
+END;
+/
+
+
 -- Un client ne peut venir manger dans le restaurant que si le nombre maximum de couverts n’a pas été dépassé (200 couverts par service)
 
 CREATE OR REPLACE trigger max_couverts
@@ -1186,6 +1241,23 @@ BEGIN
         raise application_error(101, 'Le nombre maximum de couverts a été atteint, aucune nouvelle commande ne peut être passée.');
 END;
 /
+
+--triger OK :
+CREATE OR REPLACE TRIGGER max_couverts
+    BEFORE INSERT ON Commandes
+    FOR EACH ROW
+DECLARE
+    nb_couverts number(3);
+BEGIN
+    SELECT COUNT(num_commande) INTO nb_couverts
+    FROM Commandes
+    WHERE date_commande = :new.date_commande AND service = :new.service;
+
+    IF nb_couverts > 200 THEN
+        raise_application_error(-20001, 'Le nombre maximum de couverts a ete atteint, aucune nouvelle commande ne peut etre passee.');
+    END IF;
+END;
+/   
 
 -- Chaque entrée, chaque plat et chaque dessert contient au moins un ingrédient
 
@@ -1251,7 +1323,7 @@ DECLARE
     t_boisson varchar(10);
 BEGIN
     SELECT type_boisson INTO t_boisson
-    FROM Boissons
+    FROM Boissons B
     WHERE B.num_boisson = :new.num_boisson;
     IF ((t_boisson = 'vin') AND ((:new.nb_unites%0.75)%0.14 != 0))
         OR (((t_boisson = 'biere') OR (t_boisson = 'sirop')) AND (:new.nb_unites%0.25 != 0))
@@ -1262,6 +1334,36 @@ BEGIN
             raise application_error(200, 'Le nombre d unites n est pas correct');
 END;
 /
+
+--TRIGGER OK :
+CREATE OR REPLACE TRIGGER unites_boissons
+    BEFORE INSERT OR UPDATE ON A_Boire
+    FOR EACH ROW
+DECLARE
+    t_boisson varchar(10);
+BEGIN
+    SELECT type_boisson INTO t_boisson
+    FROM Boissons
+    WHERE Boissons.num_boisson = :new.num_boisson;
+
+    IF ((t_boisson = 'vin') AND (MOD(:new.nb_unites, 0.75) MOD 0.14 != 0))
+        OR (((t_boisson = 'biere') OR (t_boisson = 'sirop')) AND (MOD(:new.nb_unites, 0.25) != 0))
+        OR ((t_boisson = 'eau') AND (MOD(:new.nb_unites, 0.75) MOD 0.33 != 0))
+        OR ((t_boisson = 'cafe') AND (MOD(:new.nb_unites, 8) != 0))
+        OR ((t_boisson = 'champagne') AND (MOD(:new.nb_unites, 0.75) != 0))
+        OR ((t_boisson = 'a_fort') AND (MOD(:new.nb_unites, 0.04) != 0)) THEN
+        raise_application_error(-20002, 'Le nombre d unites n est pas correct');
+    END IF;
+END;
+/
+
+-- Exemple d'insertion d'une commande de vin pour tester le trigger 'unites_boissons' :
+-- Cas 1 : insertion validée pour un nombre d'unités de 1.64 correspondant à 2 bouteilles de 75 cL et 1 verre de 14 cL de vin Chateauneuf du Pape Rouge
+INSERT INTO a_boire VALUES (1, 20, 1.64);
+
+-- Cas 2 : echec de l'insertion grâce au trigger pour un nombre d'unités de 0.88 de vin Chateauneuf du Pape Rouge
+INSERT INTO a_boire VALUES (1, 20, 0.88);
+
 
 -- Créer la procédure à exécuter pour augmenter les stocks d'un ingrédient,
 -- lors de la réception des commandes passées aux fournisseurs par exemple.
