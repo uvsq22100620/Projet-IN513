@@ -1811,3 +1811,47 @@ SELECT utc.table_name AS view_name, utc.column_name, utc.data_type
 FROM user_tab_columns utc
 JOIN user_views uv ON utc.table_name = uv.view_name
 ORDER BY utc.table_name, utc.column_id;
+
+CREATE OR REPLACE TRIGGER maj_stocks
+AFTER INSERT OR UPDATE OR DELETE ON Est_Commande
+FOR EACH ROW
+DECLARE
+    quantite_composee number := 0;
+BEGIN
+    IF inserting THEN
+        SELECT nb_EPD * nb_unites INTO quantite_composee
+        FROM Composition
+        WHERE num_carte = :NEW.num_carte;
+        UPDATE Ingredients SET stock = stock - v_quantite_composee
+        WHERE num_igd IN (SELECT num_igd
+                            FROM Composition
+                            WHERE num_carte = :NEW.num_carte);
+    ELSIF deleting THEN
+        SELECT nb_EPD * nb_unites INTO v_quantite_composee
+        FROM Composition
+        WHERE num_carte = :OLD.num_carte;
+        UPDATE Ingredients SET stock = stock + v_quantite_composee
+        WHERE num_igd IN (SELECT num_igd
+                            FROM Composition
+                            WHERE num_carte = :OLD.num_carte);
+    ELSIF updating THEN
+        IF :NEW.nb_EPD > :OLD.nb_EPD THEN
+            SELECT nb_EPD * nb_unites INTO v_quantite_composee
+            FROM Composition
+            WHERE num_carte = :NEW.num_carte;
+            UPDATE Ingredients SET stock = stock - (v_quantite_composee * (:NEW.nb_EPD - :OLD.nb_EPD))
+            WHERE num_igd IN (SELECT num_igd
+                                FROM Composition
+                                WHERE num_carte = :NEW.num_carte);
+        ELSE
+            SELECT nb_EPD * nb_unites INTO v_quantite_composee
+            FROM Composition
+            WHERE num_carte = :NEW.num_carte;
+            UPDATE Ingredients SET stock = stock + (v_quantite_composee * (:OLD.nb_EPD - :NEW.nb_EPD))
+            WHERE num_igd IN (SELECT num_igd
+                                FROM Composition
+                                WHERE num_carte = :NEW.num_carte);
+        END IF;
+    END IF;
+END;
+/
