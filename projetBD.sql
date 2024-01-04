@@ -1376,6 +1376,21 @@ BEGIN
 END;
 /
 
+CREATE OR REPLACE trigger trigger_um_commande
+    BEFORE INSERT ON commandes
+    FOR EACH ROW
+DECLARE
+    lastone number(10);
+BEGIN
+    SELECT max(num_commande) INTO lastone FROM Commandes;
+    IF lastone IS NULL THEN
+        :new.num_commande := 1;
+    ELSE
+        :new.num_commande := lastone+1;
+    END IF;
+END;
+/
+
 -- Exemple d'insertion d'une commande de vin pour tester le trigger 'unites_boissons' :
 -- Cas 1 : insertion validée pour un nombre d'unités de 1.64 correspondant à 2 bouteilles de 75 cL et 1 verre de 14 cL de vin Chateauneuf du Pape Rouge
 INSERT INTO a_boire VALUES (1, 20, 1.64);
@@ -1405,6 +1420,35 @@ END;
 
 DECLARE
     CURSOR c1 IS SELECT * FROM A_boire;
+    drink_type varchar(15) := '0';
+    nb_tot_bouteilles number := 0;
+BEGIN
+    -- Calcul du nombre de bouteilles vendues
+    FOR tuple IN c1 LOOP
+        SELECT b.type_boisson INTO drink_type
+        FROM Boissons B
+        WHERE B.num_boisson = tuple.num_boisson;
+        IF drink_type = 'vin' AND mod(tuple.nb_unites, 0.75) = 0 THEN
+            nb_tot_bouteilles := nb_tot_bouteilles + (tuple.nb_unites/0.75);
+        END IF;
+    END LOOP;
+    -- Affichage du nombre de bouteilles vendues
+	IF nb_tot_bouteilles = 0 THEN        
+    	DBMS_OUTPUT.PUT_LINE('Aucune bouteille de vin n a été vendue.');
+	ELSIF nb_tot_bouteilles = 1 THEN
+        DBMS_OUTPUT.PUT_LINE('Il y a eu 1 bouteille de vin vendue.');
+	ELSE
+        DBMS_OUTPUT.PUT_LINE('Il y a eu '||nb_tot_bouteilles||' bouteilles de vin vendues.');
+	END IF;
+END;
+/
+
+DECLARE
+    CURSOR c1 IS 
+    SELECT AB.num_commande, AB.num_boisson, AB.nb_unites 
+    FROM A_boire AB, commandes C 
+    WHERE AB.num_commande = C.num_commande AND TO_CHAR(C.date_commande, 'DD-MON-YYYY') = '14-OCT-2023';
+    
     drink_type varchar(15) := '0';
     nb_tot_bouteilles number := 0;
 BEGIN
@@ -1636,17 +1680,17 @@ ORDER BY S.num_serveur;
 -- Stocker dans la vue recette_semaine les jours, le nombre de clients ainsi que l’argent gagné ce jour.
 
 CREATE OR REPLACE VIEW vue_recette_semaine AS
-SELECT C.date_commande, COUNT(C.num_commande) as nb_clients
+(SELECT C.date_commande, COUNT(C.num_commande) as nb_clients
 FROM Commandes C
 GROUP BY C.date_commande
-ORDER BY C.date_commande;
+ORDER BY C.date_commande;)
 INTER
 SELECT C.date_commande, (SUM(EC.nb_EPD*Ca.prix_carte) + SUM(AB.nb_unites*B.prix_boisson_vente)) as recette
 FROM Commandes C, Est_Commande EC, Carte Ca, A_Boire, AB, Boissons B
 WHERE C.num_commande = EC.num_commande
 AND EC.num_carte = Ca.num_carte
 AND C.num_commande = AB.num_commande
-AND AB.num_boisson = B.num_boisson;
+AND AB.num_boisson = B.num_boisson
 GROUP BY C.date_commande
 ORDER BY C.date_commande;
 
@@ -1753,7 +1797,7 @@ GROUP BY C.num_carte, C.nom_carte;
 -- UTILISATEURS
 
 CREATE USER Gerant IDENTIFIED BY "0000";
-GRANT ALL PRIVILEGES ON * TO Gerant;
+GRANT ALL PRIVILEGES TO Gerant;
 
 CREATE USER Responsable_serveur IDENTIFIED BY "1234";
 GRANT ALL PRIVILEGES ON Serveurs TO Responsable_serveur;
@@ -1796,21 +1840,27 @@ FROM user_constraints
 ORDER BY table_name, constraint_type;
 
 
-SELECT table_name, trigger_name, trigger_type, triggering_event
-FROM user_triggers
+SELECT table_name, trigger_name, trigger_type, triggering_event 
+FROM user_triggers 
 ORDER BY table_name;
 
 
 SELECT DISTINCT DTP.table_name, DTP.grantee AS utilisateur_acces_lecture
 FROM dba_tab_privs DTP
 WHERE DTP.privilege = 'SELECT'
-ORDER BY DTP.table_name, tp.grantee;
+ORDER BY DTP.table_name, dtp.grantee;
 
 
 SELECT utc.table_name AS view_name, utc.column_name, utc.data_type
 FROM user_tab_columns utc
 JOIN user_views uv ON utc.table_name = uv.view_name
 ORDER BY utc.table_name, utc.column_id;
+
+SELECT DISTINCT table_name, grantee AS utilisateur_acces_lecture
+FROM all_tab_privs
+WHERE privilege = 'SELECT'
+  AND grantee NOT LIKE 'PUBLIC'
+ORDER BY table_name, grantee;
 
 CREATE OR REPLACE TRIGGER maj_stocks
 AFTER INSERT OR UPDATE OR DELETE ON Est_Commande
