@@ -1110,11 +1110,33 @@ BEGIN
 END;
 /
 
+CREATE OR REPLACE TRIGGER maj_prix_carte
+    AFTER INSERT OR UPDATE ON Composition
+    FOR EACH ROW
+DECLARE
+    total_prix_igd NUMBER(7, 4);
+    nouveau_prix_EPD NUMBER(7, 4);
+BEGIN
+    SELECT SUM(I.prix_igd * C.nb_unites)
+    INTO total_prix_igd
+    FROM Ingredients I, Composition C
+    WHERE I.num_igd = C.num_igd
+        AND C.num_carte = :new.num_carte;
+
+    nouveau_prix_EPD := total_prix_igd + (0.35 * total_prix_igd);
+
+    UPDATE Carte
+    SET prix_carte = nouveau_prix_EPD
+    WHERE num_carte = :new.num_carte;
+END;
+/
+
+
 -- Le prix de la boisson à l'achat doit être inférieur à celui à la vente
 
 -- pas trigger normalement, j'ai mis un CHECK dans la création de la table
 
---CREATE OR REPLACE trigger prix_boissons
+--CREATE OR REPLACE trigger prix_boissons   
 --    BEFORE INSERT OR UPDATE ON Boissons
 --BEGIN
 --    IF :new.prix_boisson_achat > :new.prix_boisson_vente THEN
@@ -1125,106 +1147,103 @@ END;
 -- Pour chaque commande, le stock des ingrédients nécessaires aux EPD commandés diminue.
             -- Si le stock n’est pas suffisant à la préparation, alors le client doit en choisir un autre.
 
-CREATE OR REPLACE trigger maj_stocks
-    BEFORE INSERT OR UPDATE OR DELETE ON Est_commande
-DECLARE
-    CURSOR c1 IS (SELECT I.num_igd as constituant, C.nb_EPD as quantite
-                    FROM Ingredients I, Est_Commande EC, Composition C
-                    WHERE EC.num_carte = C.num_carte
-                    AND C.num_igd = I.num_igd
-                    AND EC.num_carte = :new.num_carte);
-    nv_stock number := 0;
-    nv_qte number := 0;
-BEGIN
-    FOR igd IN c1 LOOP
-        IF inserting THEN
-            nv_stock := (SELECT stock
-                        FROM Ingredients
-                        WHERE num_igd = igd.constituant) - (:new.nb_unites * igd.quantite);
-            UPDATE Ingredients SET stock = nv_stock
-            WHERE num_igd = igd.constituant;
-        END IF;
-        IF updating or deleting THEN
-            IF deleting OR (:new.nb_EPD < :old.nb_EPD) THEN      -- commande annulée : on rajoute les ingrédients dans les stocks
-                IF deleting THEN
-                    nv_qte := :old.nb_EPD;
-                ELSE
-                    nv_qte := :old.nb_EPD - :new.nb_EPD;
-                END IF;
-                nv_stock := (SELECT stock
-                        FROM Ingredients
-                        WHERE num_igd = igd.constituant) + (nv_qte * igd.quantite);
-                UPDATE Ingredients SET stock = nv_stock
-                WHERE num_igd = igd.constituant;
-                EXIT;
-            END IF;
-            IF :new.nb_EPD > :old.nb_EPD THEN                   -- ajout d'une commande pour cet EPD
-                nv_qte := :new.nb_EPD - :old.nb_EPD;
-            ELSE                                                -- nb_EPD n'a pas changé 
-                nv_qte := :new.nb_EPD;
-            END IF;
-            nv_stock := (SELECT stock
-                        FROM Ingredients
-                        WHERE num_igd = igd.constituant) - (nv_qte * igd.quantite);
-            UPDATE Ingredients SET stock = nv_stock
-            WHERE num_igd = igd.constituant;
-        END IF;        
-    END;
-/
-
-
 CREATE OR REPLACE TRIGGER maj_stocks
-    BEFORE INSERT OR UPDATE OR DELETE ON Est_commande
-    FOR EACH ROW
+AFTER INSERT OR UPDATE OR DELETE ON Est_Commande
+FOR EACH ROW
 DECLARE
-    CURSOR c1 IS
-        SELECT I.num_igd as constituant, C.nb_unites as quantite
-        FROM Ingredients I, Est_Commande EC, Composition C
-        WHERE EC.num_carte = C.num_carte 
-        AND C.num_igd = I.num_igd 
-        AND EC.num_carte = :new.num_carte;
-    nv_stock NUMBER := 0;
-    nv_qte NUMBER := 0;
+    v_quantite_composee NUMBER := 0;
 BEGIN
-    FOR igd IN c1 LOOP
-        IF INSERTING THEN
-            nv_stock := (SELECT stock 
-                        FROM Ingredients 
-                        WHERE num_igd = igd.constituant) - (:new.nb_EPD * igd.quantite);
-            
-            UPDATE Ingredients SET stock = nv_stock 
-            WHERE num_igd = igd.constituant;
-        END IF;
-        IF UPDATING OR DELETING THEN
-            IF DELETING OR (:new.nb_EPD < :old.nb_EPD) THEN
-                IF DELETING THEN
-                    nv_qte := :old.nb_EPD;
-                ELSE
-                    nv_qte := :old.nb_EPD - :new.nb_EPD;
-                END IF;
-                nv_stock := (SELECT stock 
-                            FROM Ingredients 
-                            WHERE num_igd = igd.constituant) + (nv_qte * igd.quantite);
-                
-                UPDATE Ingredients SET stock = nv_stock 
-                WHERE num_igd = igd.constituant;
-                EXIT;
-            END IF;
-            IF :new.nb_EPD > :old.nb_EPD THEN
-                nv_qte := :new.nb_EPD - :old.nb_EPD;
+    IF inserting THEN
+        FOR igd_compo IN (SELECT nb_unites, num_igd FROM Composition WHERE num_carte = :NEW.num_carte) LOOP
+            v_quantite_composee := :NEW.nb_EPD * igd_compo.nb_unites;
+            UPDATE Ingredients SET stock = stock - v_quantite_composee
+            WHERE num_igd = igd_compo.num_igd;
+        END LOOP;
+    ELSIF deleting THEN
+        FOR igd_compo IN (SELECT nb_unites, num_igd FROM Composition WHERE num_carte = :OLD.num_carte) LOOP
+            v_quantite_composee := :OLD.nb_EPD * igd_compo.nb_unites;
+            UPDATE Ingredients SET stock = stock + v_quantite_composee
+            WHERE num_igd = igd_compo.num_igd;
+        END LOOP;
+    ELSIF updating THEN
+        FOR igd_compo IN (SELECT C.nb_unites, C.num_igd
+                          FROM Composition C
+                          WHERE C.num_carte = :NEW.num_carte) LOOP
+            IF :NEW.nb_EPD > :OLD.nb_EPD THEN
+                v_quantite_composee := :NEW.nb_EPD * igd_compo.nb_unites;
+                UPDATE Ingredients SET stock = stock - v_quantite_composee
+                WHERE num_igd = igd_compo.num_igd;
             ELSE
-                nv_qte := :new.nb_EPD;
+                v_quantite_composee := :OLD.nb_EPD * igd_compo.nb_unites;
+                UPDATE Ingredients SET stock = stock + v_quantite_composee
+                WHERE num_igd = igd_compo.num_igd;
             END IF;
-            nv_stock := (SELECT stock 
-                        FROM Ingredients 
-                        WHERE num_igd = igd.constituant) - (nv_qte * igd.quantite);
-            
-            UPDATE Ingredients SET stock = nv_stock 
-            WHERE num_igd = igd.constituant;
-        END IF;
-    END LOOP;
+        END LOOP;
+    END IF;
 END;
 /
+
+CREATE OR REPLACE TRIGGER maj_stocks
+AFTER INSERT OR UPDATE OR DELETE ON Est_Commande
+FOR EACH ROW
+DECLARE
+    v_quantite_composee NUMBER := 0;
+BEGIN
+    IF inserting THEN
+        FOR igd_compo IN (SELECT nb_unites, num_igd FROM Composition WHERE num_carte = :NEW.num_carte) LOOP
+            v_quantite_composee := :NEW.nb_EPD * igd_compo.nb_unites;
+            UPDATE Ingredients SET stock = stock - v_quantite_composee
+            WHERE num_igd = igd_compo.num_igd;
+        END LOOP;
+    ELSIF deleting THEN
+        FOR igd_compo IN (SELECT nb_unites, num_igd FROM Composition WHERE num_carte = :OLD.num_carte) LOOP
+            v_quantite_composee := :OLD.nb_EPD * igd_compo.nb_unites;
+            UPDATE Ingredients SET stock = stock + v_quantite_composee
+            WHERE num_igd = igd_compo.num_igd;
+        END LOOP;
+    ELSIF updating THEN
+        FOR igd_compo IN (SELECT C.nb_unites, C.num_igd
+                          FROM Composition C
+                          WHERE C.num_carte = :NEW.num_carte) LOOP
+            IF :NEW.nb_EPD > :OLD.nb_EPD THEN
+                v_quantite_composee := (:NEW.nb_EPD-:OLD.nb_EPD) * igd_compo.nb_unites;
+                UPDATE Ingredients SET stock = stock - v_quantite_composee
+                WHERE num_igd = igd_compo.num_igd;
+            ELSE
+                v_quantite_composee := (:OLD.nb_EPD-:NEW.nb_EPD) * igd_compo.nb_unites;
+                UPDATE Ingredients SET stock = stock + v_quantite_composee
+                WHERE num_igd = igd_compo.num_igd;
+            END IF;
+        END LOOP;
+    END IF;
+END;
+/
+
+--test trigger maj_stocks :
+
+INSERT INTO Est_commande VALUES(110, 34, 1);
+
+SELECT I.nom_igd, C.nb_unites, I.stock              --commande pour voir les stocks de chaque ingrédients qui composent l'EPD 34
+FROM composition C, ingredients I
+WHERE C.num_igd = I.num_igd AND c.num_carte = 34;
+
+DELETE FROM Est_commande WHERE num_commande=110 AND num_carte=34;
+--reexecuter la commande précédente pour voir les stocks, on constate qu'ils sont revenus à la normale
+
+--test pour le cas UPDATING :
+
+SELECT I.nom_igd, C.nb_unites, I.stock 
+FROM composition C, ingredients I 
+WHERE C.num_igd = I.num_igd 
+AND c.num_carte = 25;
+
+UPDATE est_commande SET nb_EPD = 2 WHERE num_commande=110 AND num_carte=25;
+
+UPDATE est_commande 
+SET nb_EPD = 3 
+WHERE num_commande=110 AND num_carte=25;
+
+UPDATE est_commande SET nb_EPD = 1 WHERE num_commande=110 AND num_carte=25;
 
 
 -- Un client ne peut venir manger dans le restaurant que si le nombre maximum de couverts n’a pas été dépassé (200 couverts par service)
